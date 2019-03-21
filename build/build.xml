@@ -257,9 +257,9 @@
       <property name="target-platform" value="@{platform}" />
       <property name="${target-platform}" value="${target-platform}" />
 
-      <property name="jdk.tgz.path" value="${target-platform}/jdk-${jdk.short}.tgz" />
-
       <property name="jdk.data.model" value="@{datamodel}" />
+
+      <property name="jdk.tgz.path" value="${target-platform}/jdk-${jdk.short}_${target-platform}_${jdk.data.model}.tgz" />
 
       <property name="jfx.path.zip" value="${target-platform}/jfx-${jfx.name}.zip" />
 

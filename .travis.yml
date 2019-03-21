@@ -1,20 +1,18 @@
 git:
   depth: 1
 
-
 language: java
 
 jdk:
   - openjdk11
-
-cache:
-  directories:
-    - build/work/windows
-    - build/work/linux
-    - build/work/macosx
 
 before_script: cd build
 
 script:
   - ant clean
   - ant test
+
+deploy:
+  provider: script
+  script: cd build; bash deploy.sh
+  skip_cleanup: true
