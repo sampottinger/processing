@@ -1,0 +1,18 @@
+language: java
+
+jdk:
+  - openjdk11
+
+install: ant deps
+
+cache:
+  directories:
+    - build/work/windows
+    - build/work/linux
+    - build/work/macosx
+
+before_script: cd build
+
+script:
+  - ant clean
+  - ant test
