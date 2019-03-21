@@ -7,8 +7,6 @@ language: java
 jdk:
   - openjdk11
 
-install: ant deps
-
 cache:
   directories:
     - build/work/windows
