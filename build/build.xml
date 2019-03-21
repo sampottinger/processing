@@ -1813,4 +1813,8 @@ remove the spaces for depth since it should be double dash, but screws up commen
           depends="linux-clean, windows-clean, macosx-clean, subprojects-clean">
   </target>
 
+  <target name="test" description="Compile dependencies and run tests"
+    depends="subprojects-build, downloader-setup">
+  </target>
+
 </project>
