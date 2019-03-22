@@ -1,6 +1,11 @@
 mkdir all_os_release
 
 echo "=============================="
+echo "====   Getting CLI Tools  ===="
+echo "=============================="
+pip install awscli --upgrade --user
+
+echo "=============================="
 echo "====   Preparing Windows  ===="
 echo "=============================="
 ant cross-build-windows
@@ -27,4 +32,10 @@ zip -r all_os_release/linux_aarch64.zip linux/work
 echo "=============================="
 echo "====       Packing        ===="
 echo "=============================="
-zip -r all_os_release.zip all_os_release
+TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
+zip -r all_os_release_$TIMESTAMP.zip all_os_release
+
+echo "=============================="
+echo "====       Deploying      ===="
+echo "=============================="
+aws s3 cp all_os_release_$TIMESTAMP.zip s3://processing-build-open-source
