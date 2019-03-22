@@ -3,7 +3,7 @@ mkdir all_os_release
 echo "=============================="
 echo "====   Getting CLI Tools  ===="
 echo "=============================="
-pip3 install awscli --upgrade --user
+pip install awscli --upgrade --user
 
 echo "=============================="
 echo "====   Preparing Windows  ===="
