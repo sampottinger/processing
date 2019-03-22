@@ -1,3 +1,5 @@
+os: osx
+
 git:
   depth: 1
 

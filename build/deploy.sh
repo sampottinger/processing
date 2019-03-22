@@ -1,7 +1,7 @@
 mkdir all_os_release
 
 echo "=============================="
-echo "====   Getting CLI Tools  ===="
+echo "====   Getting CLI Setup  ===="
 echo "=============================="
 pip install awscli --upgrade --user
 
