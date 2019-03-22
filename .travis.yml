@@ -17,8 +17,6 @@ script:
   - ant clean
   - ant test
 
-before_deploy: cd build
-
 deploy:
   provider: script
   script: bash deploy.sh
