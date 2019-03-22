@@ -9,6 +9,19 @@ jdk:
 before_script: cd build
 
 script:
-  - ant clean
-  - ant test
-  - bash deploy.sh
+- ant clean
+- ant test
+- bash deploy.sh
+
+before_deploy: cd build
+
+deploy:
+  provider: script
+  script: bash deploy.sh
+  skip_cleanup: true
+
+env:
+  matrix:
+    secure: BYjbBk+J7qZooV6kr33ZxLKc8ueYQGNbLFK1PHfx7Lbxdi3SMihzXA6WGFleSmIpYYrN2MqgGDir4HdDQu2KIa6Jz1cmh/2dQCVLOug84lC+a14JA2gpBPhZ2nZZtUtCHfhCNrVwF7qHe6/qPrpj2F54pog8op1i3LUafTnjXmxtkx1VKq7zWD1OCUHiIZaLd/I+puXMDdTYIaoQBJVuqZBTlLp0v8WfuKk/U8cjErsOf6oUe3Tvz162xDvVUuJKd7zjYeS8BQ7XDySjOrU4Kyagu+w88iGNB9p7KFrdD13Ivl6Dim5ikD0PzAfj8I4EfdhenZTWd6SYP4SzTi4PTPGDN2jS3F+XCoykPVEIr3+TY2crgp4/aDteaUh8QPEvK6xeTAn9abkxUt+wF4Qqx6o47kH6NL79RcVjaDF16wmUIxcNckXX/WyA7dBCfvD2huCWW2SWMoMzxQyB2+19kCEn0iU2gqfMGYK6RbTuaCm0SzRH5/s3u8CMTbjfEWnrDlYXVC3a7EV7NFHBNG0eJKDKGNgm25FnOsbVs1Auki4s8tC+BAVMPj6ZQns8xSYPJ+3CBOpGynGE7WJd4uFBTG/4QHMTHY7B52F/0tRYYFiAeOsS+qf+3tYQ5JyqTPu7QbqQthf6yh99oyn37N+5meSCZ1RTqaSPPRtok3lMvKI=
+  global:
+    secure: YxGYEKFKFyaADZbdcBqD5ZTRKz/o+IfVcNWle4l+ZoENL2mxiAWDeSmIt5+1x+c7LR/R7XY4dUp1IkdMAce0vk/voqjfg0p4mGBYqmH2N+Ce6v810OU30cnc5veAd/ZeFftZuBu6+Q6aNKPjJB0vQfJawimem54bTE4EvxmUmwsBaeXENktuZf8SA1WvzJqntGXWTJa7cWKLdKBNeA4OfbaVgz/tED/BJevA4l301FO4AG23Sjlx2i27XmY9NZ0esLAEXcaaCdmfFzeMTfhhF7NlzHAdD/NQE8fH0s8oPbE7ob0wOiSUKUFh1T/jh87EkbP+Mr4jc+oRyE0NYKqxCmQrttlZ/wyFgmGT3iOM6uYbNx/jgmfeW/DqvQ6wbEFG3wA+WbAwO9qGBaxwPyzhx5z2MZnAprW1ejtARlCbz3/Phd1cXXzDlbokudQiMVcSZ8E6VgbGEEuzu1Y4eJWvnFviB9BB+G02G9pjPH+Rzl78SID4a+nSI2jcCrtGLuDrRJobbUf6HPNiL9R81epdspRvTDP4ypRxqKm+V4e51/fqmjELYgYUorGehgPKEEzdbRx/an2u1I6mmN0AXzN2iwYOiqLAQy0nEUDSYGn28bKVZvzqJKVFsDkw96Ol3RTNr34WjFfftCRkiQCMRnPUJagFT8LurVcBJu0ZHkAthBQ=
