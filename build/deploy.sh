@@ -32,7 +32,7 @@ zip -r all_os_release/linux_aarch64.zip linux/work
 echo "=============================="
 echo "====       Packing        ===="
 echo "=============================="
-TIMESTAMP = $(date "+%Y%m%d-%H%M%S")
+TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
 zip -r all_os_release_$TIMESTAMP.zip all_os_release
 
 echo "=============================="
