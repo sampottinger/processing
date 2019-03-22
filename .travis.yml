@@ -17,10 +17,10 @@ before_deploy: cd build
 
 deploy:
   provider: script
-  script:
-    - cd build
-    - if [ "$TRAVIS_BRANCH" = "travis" ]; then bash deploy.sh fi
+  script: bash deploy.sh
   skip_cleanup: true
+  on:
+    branch: travis
 
 env:
   global:
