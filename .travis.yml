@@ -16,7 +16,6 @@ before_script: cd build
 script:
   - ant clean
   - ant test
-  - bash deploy.sh
 
 before_deploy: cd build
 
