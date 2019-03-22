@@ -3,9 +3,7 @@
 /*
   Part of the Processing project - http://processing.org
 
-  Copyright (c) 2012-19 The Processing Foundation
-  Copyright (c) 2004-12 Ben Fry and Casey Reas
-  Copyright (c) 2001-04 Massachusetts Institute of Technology
+  Copyright (c) 2014-19 The Processing Foundation
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License
@@ -22,31 +20,53 @@
 */
 
 
+import java.util.Optional;
+
 /**
  * Utility to generate the download URL from Oracle.
  */
-public class OracleDownloadUrlGenerator extends DownloadUrlGenerator{
+public class OracleDownloadUrlGenerator extends DownloadUrlGenerator {
+  private static final String COOKIE =
+      "oraclelicense=accept-securebackup-cookie";
 
-    @Override
-    public String buildUrl(String platform, boolean jdk, int train, int version, int update,
-        int build, String flavor, String hash) {
 
-        String filename = getLocalFilename(platform, jdk, train, version, update, build, flavor, hash);
+  @Override
+  public String buildUrl(String platform, String component, int train, int version, int update,
+      int build, String flavor, String hash) {
 
-        String url = "http://download.oracle.com/otn-pub/java/jdk/" +
-                (update == 0 ?
-                        String.format("%d-b%02d/", version, build) :
-                        String.format("%du%d-b%02d/", version, update, build));
-
-        // URL format changed starting with 8u121
-        if (update >= 121) {
-            url += hash + "/";
-        }
-
-        // Finally, add the filename to the end
-        url += filename;
-
-        return url;
+    if (!component.equalsIgnoreCase("jdk")) {
+      throw new RuntimeException("Can only generate JDK download URLs for Oracle.");
     }
+
+    String filename = getLocalFilename(
+        platform,
+        component,
+        train,
+        version,
+        update,
+        build,
+        flavor,
+        hash
+    );
+
+    String url = "http://download.oracle.com/otn-pub/java/jdk/" +
+        (update == 0 ?
+            String.format("%d-b%02d/", version, build) :
+            String.format("%du%d-b%02d/", version, update, build));
+
+    // URL format changed starting with 8u121
+    if (update >= 121) {
+      url += hash + "/";
+    }
+
+    // Finally, add the filename to the end
+    url += filename;
+
+    return url;
+  }
+
+  public Optional<String> getCookie() {
+    return Optional.of(COOKIE);
+  }
 
 }

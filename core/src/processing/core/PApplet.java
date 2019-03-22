@@ -39,14 +39,6 @@ import javax.swing.JOptionPane;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
 
-// used by loadImage()
-import java.awt.Image;
-import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
-// allows us to remove our own MediaTracker code
-import javax.swing.ImageIcon;
-
 // used by selectInput(), selectOutput(), selectFolder()
 import java.awt.EventQueue;
 import java.awt.FileDialog;
@@ -80,6 +72,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.regex.*;
 import java.util.zip.*;
 
+import processing.core.util.image.ImageLoadFacade;
+import processing.core.util.io.InputFactory;
+import processing.core.util.io.PathUtil;
 import processing.data.*;
 import processing.event.*;
 import processing.opengl.*;
@@ -141,7 +136,6 @@ public class PApplet implements PConstants {
    * Do not use; javaPlatform or javaVersionName are better options.
    * For instance, javaPlatform is useful when you need a number for
    * comparison, i.e. "if (javaPlatform >= 9)".
-   * @deprecated
    */
   @Deprecated
   public static final float javaVersion = 1 + javaPlatform / 10f;
@@ -2697,7 +2691,7 @@ public class PApplet implements PConstants {
                                event.getX(), event.getY(),
                                button, event.getCount());
       }
-      if (button == MouseEvent.RELEASE) {
+      if (action == MouseEvent.RELEASE) {
         macosxLeftButtonWithCtrlPressed = false;
       }
     }
@@ -5507,127 +5501,7 @@ public class PApplet implements PConstants {
       g.awaitAsyncSaveCompletion(filename);
     }
 
-    if (extension == null) {
-      String lower = filename.toLowerCase();
-      int dot = filename.lastIndexOf('.');
-      if (dot == -1) {
-        extension = "unknown";  // no extension found
-
-      } else {
-        extension = lower.substring(dot + 1);
-
-        // check for, and strip any parameters on the url, i.e.
-        // filename.jpg?blah=blah&something=that
-        int question = extension.indexOf('?');
-        if (question != -1) {
-          extension = extension.substring(0, question);
-        }
-      }
-    }
-
-    // just in case. them users will try anything!
-    extension = extension.toLowerCase();
-
-    if (extension.equals("tga")) {
-      try {
-        PImage image = loadImageTGA(filename);
-//        if (params != null) {
-//          image.setParams(g, params);
-//        }
-        return image;
-      } catch (IOException e) {
-        printStackTrace(e);
-        return null;
-      }
-    }
-
-    if (extension.equals("tif") || extension.equals("tiff")) {
-      byte bytes[] = loadBytes(filename);
-      PImage image =  (bytes == null) ? null : PImage.loadTIFF(bytes);
-//      if (params != null) {
-//        image.setParams(g, params);
-//      }
-      return image;
-    }
-
-    // For jpeg, gif, and png, load them using createImage(),
-    // because the javax.imageio code was found to be much slower.
-    // http://dev.processing.org/bugs/show_bug.cgi?id=392
-    try {
-      if (extension.equals("jpg") || extension.equals("jpeg") ||
-          extension.equals("gif") || extension.equals("png") ||
-          extension.equals("unknown")) {
-        byte bytes[] = loadBytes(filename);
-        if (bytes == null) {
-          return null;
-        } else {
-          //Image awtImage = Toolkit.getDefaultToolkit().createImage(bytes);
-          Image awtImage = new ImageIcon(bytes).getImage();
-
-          if (awtImage instanceof BufferedImage) {
-            BufferedImage buffImage = (BufferedImage) awtImage;
-            int space = buffImage.getColorModel().getColorSpace().getType();
-            if (space == ColorSpace.TYPE_CMYK) {
-              System.err.println(filename + " is a CMYK image, " +
-                                 "only RGB images are supported.");
-              return null;
-              /*
-              // wishful thinking, appears to not be supported
-              // https://community.oracle.com/thread/1272045?start=0&tstart=0
-              BufferedImage destImage =
-                new BufferedImage(buffImage.getWidth(),
-                                  buffImage.getHeight(),
-                                  BufferedImage.TYPE_3BYTE_BGR);
-              ColorConvertOp op = new ColorConvertOp(null);
-              op.filter(buffImage, destImage);
-              image = new PImage(destImage);
-              */
-            }
-          }
-
-          PImage image = new PImage(awtImage);
-          if (image.width == -1) {
-            System.err.println("The file " + filename +
-                               " contains bad image data, or may not be an image.");
-          }
-
-          // if it's a .gif image, test to see if it has transparency
-          if (extension.equals("gif") || extension.equals("png") ||
-              extension.equals("unknown")) {
-            image.checkAlpha();
-          }
-
-//          if (params != null) {
-//            image.setParams(g, params);
-//          }
-          image.parent = this;
-          return image;
-        }
-      }
-    } catch (Exception e) {
-      // show error, but move on to the stuff below, see if it'll work
-      printStackTrace(e);
-    }
-
-    if (loadImageFormats == null) {
-      loadImageFormats = ImageIO.getReaderFormatNames();
-    }
-    if (loadImageFormats != null) {
-      for (int i = 0; i < loadImageFormats.length; i++) {
-        if (extension.equals(loadImageFormats[i])) {
-          return loadImageIO(filename);
-//          PImage image = loadImageIO(filename);
-//          if (params != null) {
-//            image.setParams(g, params);
-//          }
-//          return image;
-        }
-      }
-    }
-
-    // failed, could not load image after all those attempts
-    System.err.println("Could not find a method to load " + filename);
-    return null;
+    return ImageLoadFacade.get().loadFromFile(this, filename, extension);
   }
 
 
@@ -5701,250 +5575,6 @@ public class PApplet implements PConstants {
     });
     return vessel;
   }
-
-
-  /**
-   * Use Java 1.4 ImageIO methods to load an image.
-   */
-  protected PImage loadImageIO(String filename) {
-    InputStream stream = createInput(filename);
-    if (stream == null) {
-      System.err.println("The image " + filename + " could not be found.");
-      return null;
-    }
-
-    try {
-      BufferedImage bi = ImageIO.read(stream);
-      PImage outgoing = new PImage(bi.getWidth(), bi.getHeight());
-      outgoing.parent = this;
-
-      bi.getRGB(0, 0, outgoing.width, outgoing.height,
-                outgoing.pixels, 0, outgoing.width);
-
-      // check the alpha for this image
-      // was gonna call getType() on the image to see if RGB or ARGB,
-      // but it's not actually useful, since gif images will come through
-      // as TYPE_BYTE_INDEXED, which means it'll still have to check for
-      // the transparency. also, would have to iterate through all the other
-      // types and guess whether alpha was in there, so.. just gonna stick
-      // with the old method.
-      outgoing.checkAlpha();
-
-      stream.close();
-      // return the image
-      return outgoing;
-
-    } catch (Exception e) {
-      printStackTrace(e);
-      return null;
-    }
-  }
-
-
-  /**
-   * Targa image loader for RLE-compressed TGA files.
-   * <p>
-   * Rewritten for 0115 to read/write RLE-encoded targa images.
-   * For 0125, non-RLE encoded images are now supported, along with
-   * images whose y-order is reversed (which is standard for TGA files).
-   * <p>
-   * A version of this function is in MovieMaker.java. Any fixes here
-   * should be applied over in MovieMaker as well.
-   * <p>
-   * Known issue with RLE encoding and odd behavior in some apps:
-   * https://github.com/processing/processing/issues/2096
-   * Please help!
-   */
-  protected PImage loadImageTGA(String filename) throws IOException {
-    InputStream is = createInput(filename);
-    if (is == null) return null;
-
-    byte header[] = new byte[18];
-    int offset = 0;
-    do {
-      int count = is.read(header, offset, header.length - offset);
-      if (count == -1) return null;
-      offset += count;
-    } while (offset < 18);
-
-    /*
-      header[2] image type code
-      2  (0x02) - Uncompressed, RGB images.
-      3  (0x03) - Uncompressed, black and white images.
-      10 (0x0A) - Run-length encoded RGB images.
-      11 (0x0B) - Compressed, black and white images. (grayscale?)
-
-      header[16] is the bit depth (8, 24, 32)
-
-      header[17] image descriptor (packed bits)
-      0x20 is 32 = origin upper-left
-      0x28 is 32 + 8 = origin upper-left + 32 bits
-
-        7  6  5  4  3  2  1  0
-      128 64 32 16  8  4  2  1
-    */
-
-    int format = 0;
-
-    if (((header[2] == 3) || (header[2] == 11)) &&  // B&W, plus RLE or not
-        (header[16] == 8) &&  // 8 bits
-        ((header[17] == 0x8) || (header[17] == 0x28))) {  // origin, 32 bit
-      format = ALPHA;
-
-    } else if (((header[2] == 2) || (header[2] == 10)) &&  // RGB, RLE or not
-               (header[16] == 24) &&  // 24 bits
-               ((header[17] == 0x20) || (header[17] == 0))) {  // origin
-      format = RGB;
-
-    } else if (((header[2] == 2) || (header[2] == 10)) &&
-               (header[16] == 32) &&
-               ((header[17] == 0x8) || (header[17] == 0x28))) {  // origin, 32
-      format = ARGB;
-    }
-
-    if (format == 0) {
-      System.err.println("Unknown .tga file format for " + filename);
-                         //" (" + header[2] + " " +
-                         //(header[16] & 0xff) + " " +
-                         //hex(header[17], 2) + ")");
-      return null;
-    }
-
-    int w = ((header[13] & 0xff) << 8) + (header[12] & 0xff);
-    int h = ((header[15] & 0xff) << 8) + (header[14] & 0xff);
-    PImage outgoing = createImage(w, h, format);
-
-    // where "reversed" means upper-left corner (normal for most of
-    // the modernized world, but "reversed" for the tga spec)
-    //boolean reversed = (header[17] & 0x20) != 0;
-    // https://github.com/processing/processing/issues/1682
-    boolean reversed = (header[17] & 0x20) == 0;
-
-    if ((header[2] == 2) || (header[2] == 3)) {  // not RLE encoded
-      if (reversed) {
-        int index = (h-1) * w;
-        switch (format) {
-        case ALPHA:
-          for (int y = h-1; y >= 0; y--) {
-            for (int x = 0; x < w; x++) {
-              outgoing.pixels[index + x] = is.read();
-            }
-            index -= w;
-          }
-          break;
-        case RGB:
-          for (int y = h-1; y >= 0; y--) {
-            for (int x = 0; x < w; x++) {
-              outgoing.pixels[index + x] =
-                is.read() | (is.read() << 8) | (is.read() << 16) |
-                0xff000000;
-            }
-            index -= w;
-          }
-          break;
-        case ARGB:
-          for (int y = h-1; y >= 0; y--) {
-            for (int x = 0; x < w; x++) {
-              outgoing.pixels[index + x] =
-                is.read() | (is.read() << 8) | (is.read() << 16) |
-                (is.read() << 24);
-            }
-            index -= w;
-          }
-        }
-      } else {  // not reversed
-        int count = w * h;
-        switch (format) {
-        case ALPHA:
-          for (int i = 0; i < count; i++) {
-            outgoing.pixels[i] = is.read();
-          }
-          break;
-        case RGB:
-          for (int i = 0; i < count; i++) {
-            outgoing.pixels[i] =
-              is.read() | (is.read() << 8) | (is.read() << 16) |
-              0xff000000;
-          }
-          break;
-        case ARGB:
-          for (int i = 0; i < count; i++) {
-            outgoing.pixels[i] =
-              is.read() | (is.read() << 8) | (is.read() << 16) |
-              (is.read() << 24);
-          }
-          break;
-        }
-      }
-
-    } else {  // header[2] is 10 or 11
-      int index = 0;
-      int px[] = outgoing.pixels;
-
-      while (index < px.length) {
-        int num = is.read();
-        boolean isRLE = (num & 0x80) != 0;
-        if (isRLE) {
-          num -= 127;  // (num & 0x7F) + 1
-          int pixel = 0;
-          switch (format) {
-          case ALPHA:
-            pixel = is.read();
-            break;
-          case RGB:
-            pixel = 0xFF000000 |
-              is.read() | (is.read() << 8) | (is.read() << 16);
-            //(is.read() << 16) | (is.read() << 8) | is.read();
-            break;
-          case ARGB:
-            pixel = is.read() |
-              (is.read() << 8) | (is.read() << 16) | (is.read() << 24);
-            break;
-          }
-          for (int i = 0; i < num; i++) {
-            px[index++] = pixel;
-            if (index == px.length) break;
-          }
-        } else {  // write up to 127 bytes as uncompressed
-          num += 1;
-          switch (format) {
-          case ALPHA:
-            for (int i = 0; i < num; i++) {
-              px[index++] = is.read();
-            }
-            break;
-          case RGB:
-            for (int i = 0; i < num; i++) {
-              px[index++] = 0xFF000000 |
-                is.read() | (is.read() << 8) | (is.read() << 16);
-              //(is.read() << 16) | (is.read() << 8) | is.read();
-            }
-            break;
-          case ARGB:
-            for (int i = 0; i < num; i++) {
-              px[index++] = is.read() | //(is.read() << 24) |
-                (is.read() << 8) | (is.read() << 16) | (is.read() << 24);
-              //(is.read() << 16) | (is.read() << 8) | is.read();
-            }
-            break;
-          }
-        }
-      }
-
-      if (!reversed) {
-        int[] temp = new int[w];
-        for (int y = 0; y < h/2; y++) {
-          int z = (h-1) - y;
-          System.arraycopy(px, y*w, temp, 0, w);
-          System.arraycopy(px, z*w, px, y*w, w);
-          System.arraycopy(temp, 0, px, z*w, w);
-        }
-      }
-    }
-    is.close();
-    return outgoing;
-  }
-
 
 
   //////////////////////////////////////////////////////////////
@@ -6077,14 +5707,31 @@ public class PApplet implements PConstants {
    * @see PApplet#saveJSONArray(JSONArray, String)
    */
   public JSONObject loadJSONObject(String filename) {
-    return new JSONObject(createReader(filename));
+    // can't pass of createReader() to the constructor b/c of resource leak
+    BufferedReader reader = createReader(filename);
+    JSONObject outgoing = new JSONObject(reader);
+    try {
+      reader.close();
+    } catch (IOException e) {  // not sure what would cause this
+      e.printStackTrace();
+    }
+    return outgoing;
   }
+
 
   /**
    * @nowebref
    */
   static public JSONObject loadJSONObject(File file) {
-    return new JSONObject(createReader(file));
+    // can't pass of createReader() to the constructor b/c of resource leak
+    BufferedReader reader = createReader(file);
+    JSONObject outgoing = new JSONObject(reader);
+    try {
+      reader.close();
+    } catch (IOException e) {  // not sure what would cause this
+      e.printStackTrace();
+    }
+    return outgoing;
   }
 
 
@@ -6101,6 +5748,7 @@ public class PApplet implements PConstants {
   public boolean saveJSONObject(JSONObject json, String filename) {
     return saveJSONObject(json, filename, null);
   }
+
 
   /**
    * @param options "compact" and "indent=N", replace N with the number of spaces
@@ -6130,12 +5778,28 @@ public class PApplet implements PConstants {
    * @see PApplet#saveJSONArray(JSONArray, String)
    */
   public JSONArray loadJSONArray(String filename) {
-    return new JSONArray(createReader(filename));
+    // can't pass of createReader() to the constructor b/c of resource leak
+    BufferedReader reader = createReader(filename);
+    JSONArray outgoing = new JSONArray(reader);
+    try {
+      reader.close();
+    } catch (IOException e) {  // not sure what would cause this
+      e.printStackTrace();
+    }
+    return outgoing;
   }
 
 
   static public JSONArray loadJSONArray(File file) {
-    return new JSONArray(createReader(file));
+    // can't pass of createReader() to the constructor b/c of resource leak
+    BufferedReader reader = createReader(file);
+    JSONArray outgoing = new JSONArray(reader);
+    try {
+      reader.close();
+    } catch (IOException e) {  // not sure what would cause this
+      e.printStackTrace();
+    }
+    return outgoing;
   }
 
 
@@ -6316,18 +5980,6 @@ public class PApplet implements PConstants {
           "to the data folder of your sketch.", e);
     }
     return null;
-  }
-
-
-  /**
-   * Used by PGraphics to remove the requirement for loading a font!
-   */
-  protected PFont createDefaultFont(float size) {
-//    Font f = new Font("SansSerif", Font.PLAIN, 12);
-//    println("n: " + f.getName());
-//    println("fn: " + f.getFontName());
-//    println("ps: " + f.getPSName());
-    return createFont("Lucida Sans", size, true, null);
   }
 
 
@@ -7074,23 +6726,7 @@ public class PApplet implements PConstants {
    *
    */
   public InputStream createInput(String filename) {
-    InputStream input = createInputRaw(filename);
-    if (input != null) {
-      // if it's gzip-encoded, automatically decode
-      final String lower = filename.toLowerCase();
-      if (lower.endsWith(".gz") || lower.endsWith(".svgz")) {
-        try {
-          // buffered has to go *around* the GZ, otherwise 25x slower
-          return new BufferedInputStream(new GZIPInputStream(input));
-
-        } catch (IOException e) {
-          printStackTrace(e);
-        }
-      } else {
-        return new BufferedInputStream(input);
-      }
-    }
-    return null;
+    return InputFactory.createInput(this, filename);
   }
 
 
@@ -7098,159 +6734,7 @@ public class PApplet implements PConstants {
    * Call openStream() without automatic gzip decompression.
    */
   public InputStream createInputRaw(String filename) {
-    if (filename == null) return null;
-
-    if (sketchPath == null) {
-      System.err.println("The sketch path is not set.");
-      throw new RuntimeException("Files must be loaded inside setup() or after it has been called.");
-    }
-
-    if (filename.length() == 0) {
-      // an error will be called by the parent function
-      //System.err.println("The filename passed to openStream() was empty.");
-      return null;
-    }
-
-    // First check whether this looks like a URL
-    if (filename.contains(":")) {  // at least smells like URL
-      try {
-        URL url = new URL(filename);
-        URLConnection conn = url.openConnection();
-
-        if (conn instanceof HttpURLConnection) {
-          HttpURLConnection httpConn = (HttpURLConnection) conn;
-          // Will not handle a protocol change (see below)
-          httpConn.setInstanceFollowRedirects(true);
-          int response = httpConn.getResponseCode();
-          // Default won't follow HTTP -> HTTPS redirects for security reasons
-          // http://stackoverflow.com/a/1884427
-          if (response >= 300 && response < 400) {
-            String newLocation = httpConn.getHeaderField("Location");
-            return createInputRaw(newLocation);
-          }
-          return conn.getInputStream();
-        } else if (conn instanceof JarURLConnection) {
-          return url.openStream();
-        }
-      } catch (MalformedURLException mfue) {
-        // not a url, that's fine
-
-      } catch (FileNotFoundException fnfe) {
-        // Added in 0119 b/c Java 1.5 throws FNFE when URL not available.
-        // http://dev.processing.org/bugs/show_bug.cgi?id=403
-
-      } catch (IOException e) {
-        // changed for 0117, shouldn't be throwing exception
-        printStackTrace(e);
-        //System.err.println("Error downloading from URL " + filename);
-        return null;
-        //throw new RuntimeException("Error downloading from URL " + filename);
-      }
-    }
-
-    InputStream stream = null;
-
-    // Moved this earlier than the getResourceAsStream() checks, because
-    // calling getResourceAsStream() on a directory lists its contents.
-    // http://dev.processing.org/bugs/show_bug.cgi?id=716
-    try {
-      // First see if it's in a data folder. This may fail by throwing
-      // a SecurityException. If so, this whole block will be skipped.
-      File file = new File(dataPath(filename));
-      if (!file.exists()) {
-        // next see if it's just in the sketch folder
-        file = sketchFile(filename);
-      }
-
-      if (file.isDirectory()) {
-        return null;
-      }
-      if (file.exists()) {
-        try {
-          // handle case sensitivity check
-          String filePath = file.getCanonicalPath();
-          String filenameActual = new File(filePath).getName();
-          // make sure there isn't a subfolder prepended to the name
-          String filenameShort = new File(filename).getName();
-          // if the actual filename is the same, but capitalized
-          // differently, warn the user.
-          //if (filenameActual.equalsIgnoreCase(filenameShort) &&
-          //!filenameActual.equals(filenameShort)) {
-          if (!filenameActual.equals(filenameShort)) {
-            throw new RuntimeException("This file is named " +
-                                       filenameActual + " not " +
-                                       filename + ". Rename the file " +
-                                       "or change your code.");
-          }
-        } catch (IOException e) { }
-      }
-
-      // if this file is ok, may as well just load it
-      stream = new FileInputStream(file);
-      if (stream != null) return stream;
-
-      // have to break these out because a general Exception might
-      // catch the RuntimeException being thrown above
-    } catch (IOException ioe) {
-    } catch (SecurityException se) { }
-
-    // Using getClassLoader() prevents java from converting dots
-    // to slashes or requiring a slash at the beginning.
-    // (a slash as a prefix means that it'll load from the root of
-    // the jar, rather than trying to dig into the package location)
-    ClassLoader cl = getClass().getClassLoader();
-
-    // by default, data files are exported to the root path of the jar.
-    // (not the data folder) so check there first.
-    stream = cl.getResourceAsStream("data/" + filename);
-    if (stream != null) {
-      String cn = stream.getClass().getName();
-      // this is an irritation of sun's java plug-in, which will return
-      // a non-null stream for an object that doesn't exist. like all good
-      // things, this is probably introduced in java 1.5. awesome!
-      // http://dev.processing.org/bugs/show_bug.cgi?id=359
-      if (!cn.equals("sun.plugin.cache.EmptyInputStream")) {
-        return stream;
-      }
-    }
-
-    // When used with an online script, also need to check without the
-    // data folder, in case it's not in a subfolder called 'data'.
-    // http://dev.processing.org/bugs/show_bug.cgi?id=389
-    stream = cl.getResourceAsStream(filename);
-    if (stream != null) {
-      String cn = stream.getClass().getName();
-      if (!cn.equals("sun.plugin.cache.EmptyInputStream")) {
-        return stream;
-      }
-    }
-
-    try {
-      // attempt to load from a local file, used when running as
-      // an application, or as a signed applet
-      try {  // first try to catch any security exceptions
-        try {
-          stream = new FileInputStream(dataPath(filename));
-          if (stream != null) return stream;
-        } catch (IOException e2) { }
-
-        try {
-          stream = new FileInputStream(sketchPath(filename));
-          if (stream != null) return stream;
-        } catch (Exception e) { }  // ignored
-
-        try {
-          stream = new FileInputStream(filename);
-          if (stream != null) return stream;
-        } catch (IOException e1) { }
-
-      } catch (SecurityException se) { }  // online, whups
-
-    } catch (Exception e) {
-      printStackTrace(e);
-    }
-
-    return null;
+    return InputFactory.createInputRaw(this, filename);
   }
 
 
@@ -7258,26 +6742,7 @@ public class PApplet implements PConstants {
    * @nowebref
    */
   static public InputStream createInput(File file) {
-    if (file == null) {
-      throw new IllegalArgumentException("File passed to createInput() was null");
-    }
-    if (!file.exists()) {
-      System.err.println(file + " does not exist, createInput() will return null");
-      return null;
-    }
-    try {
-      InputStream input = new FileInputStream(file);
-      final String lower = file.getName().toLowerCase();
-      if (lower.endsWith(".gz") || lower.endsWith(".svgz")) {
-        return new BufferedInputStream(new GZIPInputStream(input));
-      }
-      return new BufferedInputStream(input);
-
-    } catch (IOException e) {
-      System.err.println("Could not createInput() for " + file);
-      e.printStackTrace();
-      return null;
-    }
+    return InputFactory.createInput(file);
   }
 
 
@@ -7311,10 +6776,10 @@ public class PApplet implements PConstants {
       // If this looks like a URL, try to load it that way. Use the fact that
       // URL connections may have a content length header to size the array.
       if (filename.contains(":")) {  // at least smells like URL
+        InputStream input = null;
         try {
           URL url = new URL(filename);
           URLConnection conn = url.openConnection();
-          InputStream input = null;
           int length = -1;
 
           if (conn instanceof HttpURLConnection) {
@@ -7360,6 +6825,15 @@ public class PApplet implements PConstants {
         } catch (IOException e) {
           printStackTrace(e);
           return null;
+
+        } finally {
+          if (input != null) {
+            try {
+              input.close();
+            } catch (IOException e) {
+              // just deal
+            }
+          }
         }
       }
     }
@@ -7781,6 +7255,9 @@ public class PApplet implements PConstants {
    */
   static private File createTempFile(File file) throws IOException {
     File parentDir = file.getParentFile();
+    if (!parentDir.exists()) {
+      parentDir.mkdirs();
+    }
     String name = file.getName();
     String prefix;
     String suffix = null;
@@ -8112,42 +7589,17 @@ public class PApplet implements PConstants {
    * may not actually exist.
    */
   static public void createPath(String path) {
-    createPath(new File(path));
+    PathUtil.createPath(path);
   }
 
 
   static public void createPath(File file) {
-    try {
-      String parent = file.getParent();
-      if (parent != null) {
-        File unit = new File(parent);
-        if (!unit.exists()) unit.mkdirs();
-      }
-    } catch (SecurityException se) {
-      System.err.println("You don't have permissions to create " +
-                         file.getAbsolutePath());
-    }
+    PathUtil.createPath(file);
   }
 
 
   static public String getExtension(String filename) {
-    String extension;
-
-    String lower = filename.toLowerCase();
-    int dot = filename.lastIndexOf('.');
-    if (dot == -1) {
-      return "";  // no extension found
-    }
-    extension = lower.substring(dot + 1);
-
-    // check for, and strip any parameters on the url, i.e.
-    // filename.jpg?blah=blah&something=that
-    int question = extension.indexOf('?');
-    if (question != -1) {
-      extension = extension.substring(0, question);
-    }
-
-    return extension;
+    return PathUtil.parseExtension(filename);
   }
 
 
@@ -8311,10 +7763,10 @@ public class PApplet implements PConstants {
     System.arraycopy(src, 0, dst, 0, Array.getLength(src));
   }
 
-  //
   /**
-   * @deprecated Use arrayCopy() instead.
+   * Use arrayCopy() instead.
    */
+  @Deprecated
   static public void arraycopy(Object src, int srcPosition,
                                Object dst, int dstPosition,
                                int length) {
@@ -8322,18 +7774,21 @@ public class PApplet implements PConstants {
   }
 
   /**
-   * @deprecated Use arrayCopy() instead.
+   * Use arrayCopy() instead.
    */
+  @Deprecated
   static public void arraycopy(Object src, Object dst, int length) {
     System.arraycopy(src, 0, dst, 0, length);
   }
 
   /**
-   * @deprecated Use arrayCopy() instead.
+   * Use arrayCopy() instead.
    */
+  @Deprecated
   static public void arraycopy(Object src, Object dst) {
     System.arraycopy(src, 0, dst, 0, Array.getLength(src));
   }
+
 
   /**
    * ( begin auto-generated from expand.xml )
@@ -10722,9 +10177,11 @@ public class PApplet implements PConstants {
           editorLocation = parseInt(split(value, ','));
 
         } else if (param.equals(ARGS_DISPLAY)) {
-          displayNum = parseInt(value, -1);
-          if (displayNum == -1) {
-            System.err.println("Could not parse " + value + " for " + ARGS_DISPLAY);
+          displayNum = parseInt(value, -2);
+          if (displayNum == -2) {
+            // this means the display value couldn't be parsed properly
+            System.err.println(value + " is not a valid choice for " + ARGS_DISPLAY);
+            displayNum = -1;  // use the default
           }
 
         } else if (param.equals(ARGS_WINDOW_COLOR)) {
@@ -12122,6 +11579,31 @@ public class PApplet implements PConstants {
 
 
   /**
+   * ( begin auto-generated from square.xml )
+   *
+   * Draws a square to the screen. A square is a four-sided shape with 
+   * every angle at ninety degrees and each side is the same length. 
+   * By default, the first two parameters set the location of the 
+   * upper-left corner, the third sets the width and height. The way 
+   * these parameters are interpreted, however, may be changed with the 
+   * <b>rectMode()</b> function.
+   *
+   * ( end auto-generated )
+   *
+   * @webref shape:2d_primitives
+   * @param x x-coordinate of the rectangle by default
+   * @param y y-coordinate of the rectangle by default
+   * @param extent width and height of the rectangle by default
+   * @see PGraphics#rect(float, float, float, float)
+   * @see PGraphics#rectMode(int)
+   */
+  public void square(float x, float y, float extent) {
+    if (recorder != null) recorder.square(x, y, extent);
+    g.square(x, y, extent);
+  }
+
+
+  /**
    * ( begin auto-generated from ellipseMode.xml )
    *
    * The origin of the ellipse is modified by the <b>ellipseMode()</b>
@@ -12206,6 +11688,28 @@ public class PApplet implements PConstants {
                   float start, float stop, int mode) {
     if (recorder != null) recorder.arc(a, b, c, d, start, stop, mode);
     g.arc(a, b, c, d, start, stop, mode);
+  }
+
+
+  /**
+   * ( begin auto-generated from circle.xml )
+   *
+   * Draws a circle to the screen. By default, the first two parameters 
+   * set the location of the center, and the third sets the shape's width 
+   * and height. The origin may be changed with the <b>ellipseMode()</b> 
+   * function.
+   *
+   * ( end auto-generated )
+   * @webref shape:2d_primitives
+   * @param x x-coordinate of the ellipse
+   * @param y y-coordinate of the ellipse
+   * @param extent width and height of the ellipse by default
+   * @see PApplet#ellipse(float, float, float, float)
+   * @see PApplet#ellipseMode(int)
+   */
+  public void circle(float x, float y, float extent) {
+    if (recorder != null) recorder.circle(x, y, extent);
+    g.circle(x, y, extent);
   }
 
 
@@ -13228,6 +12732,82 @@ public class PApplet implements PConstants {
   public void text(float num, float x, float y, float z) {
     if (recorder != null) recorder.text(num, x, y, z);
     g.text(num, x, y, z);
+  }
+
+
+  /**
+   * ( begin auto-generated from push.xml )
+   *
+   * The <b>push()</b> function saves the current drawing style 
+   * settings and transformations, while <b>pop()</b> restores these 
+   * settings. Note that these functions are always used together. 
+   * They allow you to change the style and transformation settings 
+   * and later return to what you had. When a new state is started 
+   * with push(), it builds on the current style and transform 
+   * information.<br />
+   * <br />
+   * <b>push()</b> stores information related to the current 
+   * transformation state and style settings controlled by the 
+   * following functions: <b>rotate()</b>, <b>translate()</b>, 
+   * <b>scale()</b>, <b>fill()</b>, <b>stroke()</b>, <b>tint()</b>, 
+   * <b>strokeWeight()</b>, <b>strokeCap()</b>, <b>strokeJoin()</b>, 
+   * <b>imageMode()</b>, <b>rectMode()</b>, <b>ellipseMode()</b>, 
+   * <b>colorMode()</b>, <b>textAlign()</b>, <b>textFont()</b>, 
+   * <b>textMode()</b>, <b>textSize()</b>, <b>textLeading()</b>.<br />
+   * <br />
+   * The <b>push()</b> and <b>pop()</b> functions were added with 
+   * Processing 3.5. They can be used in place of <b>pushMatrix()</b>, 
+   * <b>popMatrix()</b>, <b>pushStyles()</b>, and <b>popStyles()</b>. 
+   * The difference is that push() and pop() control both the 
+   * transformations (rotate, scale, translate) and the drawing styles 
+   * at the same time.
+   *
+   * ( end auto-generated )
+   *
+   * @webref structure
+   * @see PGraphics#pop()
+   */
+  public void push() {
+    if (recorder != null) recorder.push();
+    g.push();
+  }
+
+
+  /**
+   * ( begin auto-generated from pop.xml )
+   *
+   * The <b>pop()</b> function restores the previous drawing style 
+   * settings and transformations after <b>push()</b> has changed them. 
+   * Note that these functions are always used together. They allow 
+   * you to change the style and transformation settings and later 
+   * return to what you had. When a new state is started with push(), 
+   * it builds on the current style and transform information.<br />
+   * <br />
+   * <br />
+   * <b>push()</b> stores information related to the current 
+   * transformation state and style settings controlled by the 
+   * following functions: <b>rotate()</b>, <b>translate()</b>, 
+   * <b>scale()</b>, <b>fill()</b>, <b>stroke()</b>, <b>tint()</b>, 
+   * <b>strokeWeight()</b>, <b>strokeCap()</b>, <b>strokeJoin()</b>, 
+   * <b>imageMode()</b>, <b>rectMode()</b>, <b>ellipseMode()</b>, 
+   * <b>colorMode()</b>, <b>textAlign()</b>, <b>textFont()</b>, 
+   * <b>textMode()</b>, <b>textSize()</b>, <b>textLeading()</b>.<br />
+   * <br />
+   * The <b>push()</b> and <b>pop()</b> functions were added with 
+   * Processing 3.5. They can be used in place of <b>pushMatrix()</b>, 
+   * <b>popMatrix()</b>, <b>pushStyles()</b>, and <b>popStyles()</b>. 
+   * The difference is that push() and pop() control both the 
+   * transformations (rotate, scale, translate) and the drawing styles 
+   * at the same time.
+   *
+   * ( end auto-generated )
+   *
+   * @webref structure
+   * @see PGraphics#push()
+   */
+  public void pop() {
+    if (recorder != null) recorder.pop();
+    g.pop();
   }
 
 

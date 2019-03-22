@@ -23,6 +23,7 @@
 package processing.app.platform;
 
 import java.io.File;
+import java.awt.Desktop;
 import java.awt.Toolkit;
 
 import processing.app.Base;
@@ -38,20 +39,6 @@ public class LinuxPlatform extends DefaultPlatform {
 
   public void initBase(Base base) {
     super.initBase(base);
-
-    String javaVendor = System.getProperty("java.vendor");
-    String javaVM = System.getProperty("java.vm.name");
-    if (javaVendor == null ||
-        (!javaVendor.contains("Sun") && !javaVendor.contains("Oracle")) ||
-        javaVM == null || !javaVM.contains("Java")) {
-      Messages.showWarning("Not fond of this Java VM",
-                           "Processing requires Java 8 from Oracle.\n" +
-                           "Other versions such as OpenJDK, IcedTea,\n" +
-                           "and GCJ are strongly discouraged. Among other things, you're\n" +
-                           "likely to run into problems with sketch window size and\n" +
-                           "placement. For more background, please read the wiki:\n" +
-                           "https://github.com/processing/processing/wiki/Supported-Platforms#linux", null);
-    }
 
     // Set x11 WM_CLASS property which is used as the application
     // name by Gnome3 and other window managers.
@@ -97,26 +84,34 @@ public class LinuxPlatform extends DefaultPlatform {
   }
 
 
+  @Override
   public File getSettingsFolder() throws Exception {
     return new File(getHomeDir(), ".processing");
   }
 
 
+  @Override
   public File getDefaultSketchbookFolder() throws Exception {
     return new File(getHomeDir(), "sketchbook");
   }
 
 
+  @Override
   public void openURL(String url) throws Exception {
-    if (openFolderAvailable()) {
-      String launcher = Preferences.get("launcher");
-      if (launcher != null) {
-        Runtime.getRuntime().exec(new String[] { launcher, url });
-      }
+    if (Desktop.isDesktopSupported()) {
+      super.openURL(url);
+
+    } else if (openFolderAvailable()) {
+      String launcher = Preferences.get("launcher");  // guaranteed non-null
+      Runtime.getRuntime().exec(new String[] { launcher, url });
+
+    } else {
+      System.err.println("No launcher set, cannot open " + url);
     }
   }
 
 
+  @Override
   public boolean openFolderAvailable() {
     if (Preferences.get("launcher") != null) {
       return true;
@@ -151,19 +146,18 @@ public class LinuxPlatform extends DefaultPlatform {
   }
 
 
+  @Override
   public void openFolder(File file) throws Exception {
-    if (openFolderAvailable()) {
-      String lunch = Preferences.get("launcher");
-      try {
-        String[] params = new String[] { lunch, file.getAbsolutePath() };
-        //processing.core.PApplet.println(params);
-        /*Process p =*/ Runtime.getRuntime().exec(params);
-        /*int result =*/ //p.waitFor();
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+    if (Desktop.isDesktopSupported()) {
+      super.openFolder(file);
+
+    } else if (openFolderAvailable()) {
+      String launcher = Preferences.get("launcher");
+      String[] params = new String[] { launcher, file.getAbsolutePath() };
+      Runtime.getRuntime().exec(params);
+
     } else {
-      System.out.println("No launcher set, cannot open " +
+      System.err.println("No launcher set, cannot open " +
                          file.getAbsolutePath());
     }
   }

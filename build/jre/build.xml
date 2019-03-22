@@ -7,27 +7,35 @@
   </path>
 
   <path id="classpath.test">
-    <pathelement location="library-test/junit-4.8.1.jar" />
-    <pathelement location = "build" />
+    <pathelement location="../../core/library-test/junit-4.8.1.jar" />
+    <pathelement location = "bin-test" />
     <path refid="classpath.base" />
   </path>
 
+  <macrodef name="compilecommon">
+    <attribute name="destdir"/>
+    <attribute name="srcdir"/>
+    <attribute name="classpath"/>
+    <sequential>
+      <mkdir dir="@{destdir}" />
+
+      <!-- Where can I expect to find Java Mode JARs? -->
+      <property name="java.mode" value="../../java/mode/" />
+
+      <javac source="1.8"
+          target="1.8"
+          srcdir="@{srcdir}"
+          destdir="@{destdir}"
+          debug="true"
+          includeantruntime="true"
+          nowarn="true">
+        <classpath refid="@{classpath}"/>
+      </javac>
+    </sequential>
+  </macrodef>
+
   <target name="test-compile">
-    <mkdir dir="build" />
-
-    <!-- Where can I expect to find Java Mode JARs? -->
-    <property name="java.mode" value="../../java/mode/" />
-
-    <javac source="1.8"
-        target="1.8"
-        srcdir="src; test"
-        destdir="build"
-        debug="true"
-        includeantruntime="true"
-        nowarn="true">
-      <classpath refid="classpath.test"/>
-    </javac>
-
+    <compilecommon srcdir="src; test" destdir="bin-test" classpath="classpath.test" />
   </target>
 
   <target name="test" depends="test-compile">
@@ -40,20 +48,7 @@
   </target>
 
   <target name="compile" depends="test">
-    <mkdir dir="bin" />
-
-    <!-- Where can I expect to find Java Mode JARs? -->
-    <property name="java.mode" value="../../java/mode/" />
-
-    <javac source="1.8"
-        target="1.8"
-        srcdir="src"
-        destdir="bin"
-        debug="true"
-        includeantruntime="true"
-        nowarn="true">
-      <classpath refid="classpath.test"/>
-    </javac>
+    <compilecommon srcdir="src" destdir="bin" classpath="classpath.base" />
   </target>
 
   <target name="dist" depends="compile">
@@ -70,7 +65,7 @@
 
   <target name="clean">
     <delete dir="bin" />
-    <delete dir="build" />
+    <delete dir="bin-test" />
     <delete file="downloader.jar" />
   </target>
 
