@@ -403,7 +403,10 @@
 
   <!-- code signing hack, turns on code signing during dist -->
   <condition property="codesign">
-    <equals arg1="${env.USER}" arg2="fry" />
+    <or>
+      <equals arg1="${env.USER}" arg2="fry" />
+      <equals arg1="${env.FORCE_SIGN}" arg2="true" />
+    </or>
   </condition>
 
   <!-- Set the version of Java that must be present to build. -->
@@ -944,7 +947,7 @@
       <arg value="--force" />
       <arg value="--sign" />
       <arg value="Developer ID Application" />
-      <arg value="Processing.app/Contents/PlugIns/jdk${jdk.esoteric}+${jdk.build}" />
+      <arg value="Processing.app/Contents/PlugIns/jdk-${jdk.esoteric}+${jdk.build}" />
     </exec>
 
     <exec executable="/usr/bin/codesign" dir="macosx/work">
