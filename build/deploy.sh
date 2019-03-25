@@ -56,9 +56,9 @@ zip -r all_os_release/$TIMESTAMP_linux_aarch64.zip linux/work
 echo "=============================="
 echo "====       Deploying      ===="
 echo "=============================="
-aws s3 cp all_os_release/$TIMESTAMP_windows.zip s3://processing-build-open-source/windows
-aws s3 cp all_os_release/$TIMESTAMP_macosx.zip s3://processing-build-open-source/macosx
-aws s3 cp all_os_release/$TIMESTAMP_linux_x64.zip s3://processing-build-open-source/linux
-aws s3 cp all_os_release/$TIMESTAMP_linux_aarch64.zip s3://processing-build-open-source/linux
+aws s3 cp all_os_release/$TIMESTAMP_windows.zip s3://processing-build-open-source/windows/$TIMESTAMP_windows.zip
+aws s3 cp all_os_release/$TIMESTAMP_macosx.zip s3://processing-build-open-source/macosx/$TIMESTAMP_macosx.zip
+aws s3 cp all_os_release/$TIMESTAMP_linux_x64.zip s3://processing-build-open-source/linux/$TIMESTAMP_linux_x64.zip
+aws s3 cp all_os_release/$TIMESTAMP_linux_aarch64.zip s3://processing-build-open-source/linux/$TIMESTAMP_linux_aarch64.zip
 echo $TIMESTAMP > LATEST.txt
 aws s3 cp LATEST.txt s3://processing-build-open-source
