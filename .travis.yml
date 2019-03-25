@@ -18,6 +18,7 @@ env:
 before_script:
   - cd build
   - brew install ant
+  - brew install awscli
 
 script:
   - ant clean
