@@ -32,10 +32,12 @@ zip -r all_os_release/linux_aarch64.zip linux/work
 echo "=============================="
 echo "====       Packing        ===="
 echo "=============================="
-TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
+TIMESTAMP=$(date -u "+%Y-%m-%d_%H-%M-%S")
 zip -r all_os_release_$TIMESTAMP.zip all_os_release
 
 echo "=============================="
 echo "====       Deploying      ===="
 echo "=============================="
 aws s3 cp all_os_release_$TIMESTAMP.zip s3://processing-build-open-source
+echo $TIMESTAMP > LATEST.txt
+aws s3 cp LATEST.txt s3://processing-build-open-source
