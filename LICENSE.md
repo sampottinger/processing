@@ -780,7 +780,7 @@ Third Party Open Source Software Used
  - [JOGL](http://jogamp.org/jogl/www/) by [Jogamp](http://jogamp.org) under the [CC BY 3.0 US license](https://creativecommons.org/licenses/by/3.0/us/).
  - [OpenJFX 11](https://openjfx.io) by Oracle under the [GPL v2 with classpath exception](https://openjdk.java.net/legal/gplv2+ce.html).
  - [OpenJDK 11](https://openjdk.java.net/projects/jdk/11/) by Oracle under the [GPL v2 with classpath exception](https://openjdk.java.net/legal/gplv2+ce.html)
- - `org.netbeans.swing.outline` from [Netbeans](http://netbeans.apache.org) under the [Apache v2 license](https://www.apache.org/licenses/LICENSE-2.0)
+ - `org.netbeans.swing.outline` from [Netbeans](http://netbeans.apache.org) dual licensed under the [GNU GPL v2 and CDDL licenses](http://wiki.netbeans.org/FaqWhyCDDLAndGPL)
 
 
 <br>
