@@ -257,9 +257,9 @@
       <property name="target-platform" value="@{platform}" />
       <property name="${target-platform}" value="${target-platform}" />
 
-      <property name="jdk.tgz.path" value="${target-platform}/jdk-${jdk.short}.tgz" />
-
       <property name="jdk.data.model" value="@{datamodel}" />
+
+      <property name="jdk.tgz.path" value="${target-platform}/jdk-${jdk.short}_${target-platform}_${jdk.data.model}.tgz" />
 
       <property name="jfx.path.zip" value="${target-platform}/jfx-${jfx.name}.zip" />
 
@@ -403,7 +403,10 @@
 
   <!-- code signing hack, turns on code signing during dist -->
   <condition property="codesign">
-    <equals arg1="${env.USER}" arg2="fry" />
+    <or>
+      <equals arg1="${env.USER}" arg2="fry" />
+      <equals arg1="${env.FORCE_SIGN}" arg2="true" />
+    </or>
   </condition>
 
   <!-- Set the version of Java that must be present to build. -->
@@ -1811,6 +1814,10 @@ remove the spaces for depth since it should be double dash, but screws up commen
 
   <target name="clean" description="Perform a spring cleaning"
           depends="linux-clean, windows-clean, macosx-clean, subprojects-clean">
+  </target>
+
+  <target name="test" description="Compile dependencies and run tests"
+    depends="subprojects-build, downloader-setup">
   </target>
 
 </project>
