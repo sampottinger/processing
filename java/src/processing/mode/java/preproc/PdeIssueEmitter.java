@@ -22,28 +22,45 @@
 package processing.mode.java.preproc;
 
 import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.atn.ATNConfigSet;
+import org.antlr.v4.runtime.dfa.DFA;
+import processing.mode.java.preproc.util.SyntaxIssueMessageSimplifier;
 
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.BitSet;
 
 
-public class PdeIgnoreErrorListener extends BaseErrorListener {
+public class PdeIssueEmitter extends BaseErrorListener {
 
-  private static AtomicReference<PdeIgnoreErrorListener> instance = new AtomicReference<>();
+  private final PdePreprocessIssueListener listener;
 
-  public static PdeIgnoreErrorListener getInstance() {
-    instance.compareAndSet(null, new PdeIgnoreErrorListener());
-    return instance.get();
+  public PdeIssueEmitter(PdePreprocessIssueListener newListener) {
+    listener = newListener;
   }
-
-  private PdeIgnoreErrorListener() {}
 
   @Override
   public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
                           int charPositionInLine, String msg, RecognitionException e) {
 
-    // Ignore syntax errors and let it get caught down the line.
+    listener.onIssue(new PdePreprocessIssue(
+        line,
+        charPositionInLine,
+        SyntaxIssueMessageSimplifier.get().simplify(msg)
+    ));
+  }
+
+  public void reportAmbiguity(Parser recognizer, DFA dfa, int startIndex, int stopIndex,
+      boolean exact, BitSet ambigAlts, ATNConfigSet configs) {
+  }
+
+  public void reportAttemptingFullContext(Parser recognizer, DFA dfa, int startIndex, int stopIndex,
+      BitSet conflictingAlts, ATNConfigSet configs) {
+  }
+
+  public void reportContextSensitivity(Parser recognizer, DFA dfa, int startIndex, int stopIndex,
+      int prediction, ATNConfigSet configs) {
   }
 
 }

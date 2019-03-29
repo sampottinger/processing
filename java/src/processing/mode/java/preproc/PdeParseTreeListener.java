@@ -45,7 +45,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
   protected boolean hasSettingsMethod;
 
   protected boolean isSizeValidInGlobal;
-  
+
   protected SketchException sketchException;
 
   PdeParseTreeListener(BufferedTokenStream tokens, String sketchName) {
@@ -99,7 +99,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
   public PreprocessorResult getResult() throws SketchException {
     return new PreprocessorResult(mode, lineOffset, sketchName, foundImports);
   }
-  
+
   protected boolean reportSketchException(SketchException sketchException) {
     if (this.sketchException == null) {
       this.sketchException = sketchException;
@@ -107,7 +107,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     }
     return false;
   }
-  
+
   public SketchException getSketchException() {
     return sketchException;
   }
@@ -253,6 +253,12 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     }
   }
 
+  public void exitSpecialMethodDeclaration(ProcessingParser.SpecialMethodDeclarationContext ctx) {
+    if (!ctx.getChild(0).getText().equals("public")) {
+      rewriter.insertBefore(ctx.start, "public ");
+    }
+  }
+
   protected void incLineOffset() {
     lineOffset++;
   }
@@ -263,10 +269,12 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
 
     ParserRuleContext testCtx =
       ctx.getParent() // apiFunction
-      .getParent() // expression
+      .getParent() // methodInvocation
       .getParent() // statementExpression
+      .getParent() // expressionStatement
+      .getParent() // statementWithoutTrailingSubstatement
       .getParent() // statement
-      .getParent() // blockStatement
+      .getParent()
       .getParent(); // block or staticProcessingSketch
 
     boolean isInGlobal =
@@ -302,14 +310,6 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
         rewriter.insertAfter(ctx.stop, " */");
       }
     }
-  }
-  
-  /**
-   * Find sketch methods
-   */
-  public void exitApiMethodDeclaration(ProcessingParser.ApiMethodDeclarationContext ctx) {
-    String methodName = ctx.getChild(1).getText();
-    if      (methodName.equals("settings"   )) hasSettingsMethod = true;
   }
 
   /**

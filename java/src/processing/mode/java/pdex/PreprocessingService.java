@@ -49,7 +49,9 @@ import processing.data.StringList;
 import processing.mode.java.JavaEditor;
 import processing.mode.java.JavaMode;
 import processing.mode.java.pdex.TextTransform.OffsetMapper;
+import processing.mode.java.pdex.util.ProblemFactory;
 import processing.mode.java.pdex.util.runtime.RuntimePathBuilder;
+import processing.mode.java.preproc.PdePreprocessIssueException;
 import processing.mode.java.preproc.PdePreprocessor;
 import processing.mode.java.preproc.PdePreprocessor.Mode;
 
@@ -58,6 +60,8 @@ import processing.mode.java.preproc.PdePreprocessor.Mode;
  * The main error checking service
  */
 public class PreprocessingService {
+
+  private final static int TIMEOUT_MILLIS = 100;
 
   protected final JavaEditor editor;
 
@@ -116,7 +120,7 @@ public class PreprocessingService {
         // If new request arrives while waiting, break out and start preprocessing
         while (requestQueue.isEmpty() && runningCallbacks != null) {
           try {
-            runningCallbacks.get(10, TimeUnit.MILLISECONDS);
+            runningCallbacks.get(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
             runningCallbacks = null;
           } catch (TimeoutException e) { }
         }
@@ -296,9 +300,16 @@ public class PreprocessingService {
 
     result.scrubbedPdeCode = workBuffer.toString();
 
-    Mode sketchMode = null;
+    Mode sketchMode;
     try {
-      sketchMode = preProcessor.write(new StringWriter(), result.scrubbedPdeCode).programType;
+      sketchMode = preProcessor.write(
+          new StringWriter(),
+          result.scrubbedPdeCode
+      ).programType;
+    } catch (PdePreprocessIssueException e) {
+      result.hasSyntaxErrors = true;
+      result.otherProblems.add(ProblemFactory.build(e.getIssue(), tabStartsList, editor));
+      return result.build();
     } catch (SketchException e) {
       sketchMode = Mode.STATIC;
     }

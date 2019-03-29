@@ -68,6 +68,7 @@ public class PdePreprocessor {
     {
       ANTLRInputStream antlrInStream = new ANTLRInputStream(inProgram);
       ProcessingLexer lexer = new ProcessingLexer(antlrInStream);
+      lexer.removeErrorListeners();
       tokens = new CommonTokenStream(lexer);
     }
 
@@ -82,7 +83,9 @@ public class PdePreprocessor {
     {
       ProcessingParser parser = new ProcessingParser(tokens);
       parser.removeErrorListeners();
-      parser.addErrorListener(PdeIgnoreErrorListener.getInstance());
+      parser.addErrorListener(new PdeIssueEmitter(
+          (x) -> { throw new PdePreprocessIssueException(x); }
+      ));
       parser.setBuildParseTree(true);
       tree = parser.processingSketch();
     }
