@@ -8,18 +8,18 @@ import processing.mode.java.preproc.util.IssueMessageSimplification;
 import java.util.Optional;
 
 
-public class MissingDoubleQuoteMessageSimplifierStrategyTest {
+public class KnownMissingMessageSimplifierStrategyTest {
 
-  private MissingDoubleQuoteMessageSimplifierStrategy strategy;
+  private KnownMissingMessageSimplifierStrategy strategy;
 
   @Before
   public void setup() {
-    strategy = new MissingDoubleQuoteMessageSimplifierStrategy();
+    strategy = new KnownMissingMessageSimplifierStrategy();
   }
 
   @Test
   public void testPresent() {
-    Optional<IssueMessageSimplification> msg = strategy.simplify("String x = \" \" \"");
+    Optional<IssueMessageSimplification> msg = strategy.simplify("missing ';' at 'addCircle'");
     Assert.assertTrue(msg.isPresent());
   }
 

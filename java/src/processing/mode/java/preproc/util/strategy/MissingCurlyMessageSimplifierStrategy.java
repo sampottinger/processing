@@ -2,19 +2,19 @@ package processing.mode.java.preproc.util.strategy;
 
 
 /**
- * Strategy to check for an opening parentheses without a close parantheses.
+ * Strategy to check that every open curly has a corresponding close curly.
  */
-public class MissingParenMessageSimplifierStrategy
+public class MissingCurlyMessageSimplifierStrategy
     extends TokenPairTemplateMessageSimplifierStrategy {
 
   @Override
   public String getToken1() {
-    return "(";
+    return "{";
   }
 
   @Override
   public String getToken2() {
-    return ")";
+    return "}";
   }
 
 }

@@ -7,19 +7,20 @@ import processing.mode.java.preproc.util.IssueMessageSimplification;
 
 import java.util.Optional;
 
+import static org.junit.Assert.*;
 
-public class MissingDoubleQuoteMessageSimplifierStrategyTest {
+public class MissingIdentifierMessageSimplifierStrategyTest {
 
-  private MissingDoubleQuoteMessageSimplifierStrategy strategy;
+  private MissingIdentifierMessageSimplifierStrategy strategy;
 
   @Before
   public void setup() {
-    strategy = new MissingDoubleQuoteMessageSimplifierStrategy();
+    strategy = new MissingIdentifierMessageSimplifierStrategy();
   }
 
   @Test
   public void testPresent() {
-    Optional<IssueMessageSimplification> msg = strategy.simplify("String x = \" \" \"");
+    Optional<IssueMessageSimplification> msg = strategy.simplify("Missing identifier at ';'");
     Assert.assertTrue(msg.isPresent());
   }
 

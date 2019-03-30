@@ -8,30 +8,30 @@ import processing.mode.java.preproc.util.IssueMessageSimplification;
 import java.util.Optional;
 
 
-public class MissingMethodNameMessageSimplifierStrategyTest {
+public class BadParamMessageSimplifierStrategyTest {
 
-  private MissingMethodNameMessageSimplifierStrategy strategy;
+  private BadParamMessageSimplifierStrategy strategy;
 
   @Before
   public void setup() {
-    strategy = new MissingMethodNameMessageSimplifierStrategy();
+    strategy = new BadParamMessageSimplifierStrategy();
   }
 
   @Test
   public void testPresent() {
-    Optional<IssueMessageSimplification> msg = strategy.simplify("void (int x) \n{");
-    Assert.assertTrue(msg.isPresent());
-  }
-
-  @Test
-  public void testPresentNoSpace() {
-    Optional<IssueMessageSimplification> msg = strategy.simplify("test(int x) \n{");
+    Optional<IssueMessageSimplification> msg = strategy.simplify("void test (int x,\ny) \n{");
     Assert.assertTrue(msg.isPresent());
   }
 
   @Test
   public void testPresentUnderscore() {
-    Optional<IssueMessageSimplification> msg = strategy.simplify("void (int x_y) \n{");
+    Optional<IssueMessageSimplification> msg = strategy.simplify("void test (int x,\ny_y) \n{");
+    Assert.assertTrue(msg.isPresent());
+  }
+
+  @Test
+  public void testPresentVarType() {
+    Optional<IssueMessageSimplification> msg = strategy.simplify("void test (int x,\nint) \n{");
     Assert.assertTrue(msg.isPresent());
   }
 

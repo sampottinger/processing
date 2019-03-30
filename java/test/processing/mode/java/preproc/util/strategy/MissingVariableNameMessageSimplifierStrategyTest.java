@@ -8,24 +8,24 @@ import processing.mode.java.preproc.util.IssueMessageSimplification;
 import java.util.Optional;
 
 
-public class MissingDoubleQuoteMessageSimplifierStrategyTest {
+public class MissingVariableNameMessageSimplifierStrategyTest {
 
-  private MissingDoubleQuoteMessageSimplifierStrategy strategy;
+  private MissingVariableNameMessageSimplifierStrategy strategy;
 
   @Before
   public void setup() {
-    strategy = new MissingDoubleQuoteMessageSimplifierStrategy();
+    strategy = new MissingVariableNameMessageSimplifierStrategy();
   }
 
   @Test
   public void testPresent() {
-    Optional<IssueMessageSimplification> msg = strategy.simplify("String x = \" \" \"");
+    Optional<IssueMessageSimplification> msg = strategy.simplify("char = '");
     Assert.assertTrue(msg.isPresent());
   }
 
   @Test
   public void testNotPresent() {
-    Optional<IssueMessageSimplification> msg = strategy.simplify("String x = \" \\\" \"");
+    Optional<IssueMessageSimplification> msg = strategy.simplify("class test {");
     Assert.assertTrue(msg.isEmpty());
   }
 
