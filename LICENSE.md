@@ -781,6 +781,7 @@ Third Party Open Source Software Used
  - [OpenJFX 11](https://openjfx.io) by Oracle under the [GPL v2 with classpath exception](https://openjdk.java.net/legal/gplv2+ce.html).
  - [OpenJDK 11](https://openjdk.java.net/projects/jdk/11/) by Oracle under the [GPL v2 with classpath exception](https://openjdk.java.net/legal/gplv2+ce.html)
  - `org.netbeans.swing.outline` from [Netbeans](http://netbeans.apache.org) dual licensed under the [GNU GPL v2 and CDDL licenses](http://wiki.netbeans.org/FaqWhyCDDLAndGPL)
+ - Some text used from [Wikipedia](https://en.wikipedia.org/wiki/Wikipedia:Copyrights) under the [CC BY-SA](https://en.wikipedia.org/wiki/Wikipedia:Text_of_Creative_Commons_Attribution-ShareAlike_3.0_Unported_License) license.
 
 
 <br>
