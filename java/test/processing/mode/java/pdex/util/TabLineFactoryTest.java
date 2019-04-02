@@ -33,12 +33,9 @@ public class TabLineFactoryTest {
 
   @Test
   public void getTabMiddle() {
-    Assert.assertEquals(1, TabLineFactory.getTab(starts, 7).getTab());
-  }
-
-  @Test
-  public void getTabMiddleLocalLine() {
-    Assert.assertEquals(2, TabLineFactory.getTab(starts, 7).getLineInTab());
+    TabLine tabLine = TabLineFactory.getTab(starts, 7);
+    Assert.assertEquals(1, tabLine.getTab());
+    Assert.assertEquals(2, tabLine.getLineInTab());
   }
 
   @Test
