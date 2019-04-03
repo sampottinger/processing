@@ -19,7 +19,7 @@ public class MissingGenericTypeMessageSimplifierStrategyTest {
 
   @Test
   public void testPresent() {
-    Optional<IssueMessageSimplification> msg = strategy.simplify("<>;");
+    Optional<IssueMessageSimplification> msg = strategy.simplify("<>'");
     Assert.assertTrue(msg.isPresent());
   }
 

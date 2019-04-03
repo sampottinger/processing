@@ -4,14 +4,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import processing.mode.java.preproc.issue.IssueMessageSimplification;
-import processing.mode.java.preproc.issue.strategy.MissingClassNameMessageSimplifierStrategy;
 
 import java.util.Optional;
 
 
 public class MissingClassNameMessageSimplifierStrategyTest {
 
-  private processing.mode.java.preproc.issue.strategy.MissingClassNameMessageSimplifierStrategy strategy;
+  private MissingClassNameMessageSimplifierStrategy strategy;
 
   @Before
   public void setup() {
