@@ -413,6 +413,10 @@ public class PreprocessingService {
       throw new RuntimeException("Unexpected sketch exception in preprocessing: " + e);
     }
 
+    // Save off the imports
+    programImports.addAll(preprocessorResult.getImportStatements());
+    result.programImports.addAll(preprocessorResult.getImportStatements());
+
     // Prepare transforms to convert pde code into parsable code
     TextTransform toParsable = new TextTransform(pdeStage);
     toParsable.addAll(preprocessorResult.getEdits());

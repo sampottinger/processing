@@ -4,6 +4,8 @@ package processing.mode.java.preproc;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -12,6 +14,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import processing.app.Preferences;
 import processing.app.SketchException;
+import processing.mode.java.pdex.ImportStatement;
 import processing.mode.java.preproc.issue.PdeIssueEmitter;
 import processing.mode.java.preproc.issue.PdePreprocessIssueException;
 

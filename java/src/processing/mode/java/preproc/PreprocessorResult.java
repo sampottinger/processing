@@ -1,10 +1,13 @@
 package processing.mode.java.preproc;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import processing.app.SketchException;
+import processing.mode.java.pdex.ImportStatement;
 import processing.mode.java.pdex.TextTransform;
 import processing.mode.java.preproc.PdePreprocessor;
 
@@ -17,6 +20,7 @@ public class PreprocessorResult {
   private final int headerOffset;
   private final String className;
   private final List<String> extraImports;
+  private final List<ImportStatement> importStatements;
   private final PdePreprocessor.Mode programType;
   private final List<TextTransform.Edit> edits;
 
@@ -42,6 +46,10 @@ public class PreprocessorResult {
     extraImports = Collections.unmodifiableList(new ArrayList<>(newExtraImports));
     programType = newProgramType;
     edits = newEdits;
+
+    importStatements = extraImports.stream()
+        .map(ImportStatement::parse)
+        .collect(Collectors.toList());
   }
 
   /**
@@ -90,4 +98,12 @@ public class PreprocessorResult {
     return edits;
   }
 
+  /**
+   * Get the found import statements as {ImportStatement}s.
+   *
+   * @return The import statements found for the user.
+   */
+  public List<ImportStatement> getImportStatements() {
+    return importStatements;
+  }
 }
