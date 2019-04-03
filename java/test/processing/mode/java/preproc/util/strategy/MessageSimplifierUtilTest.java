@@ -10,7 +10,7 @@ public class MessageSimplifierUtilTest {
   public void getOffendingAreaMatch() {
     String input = "no viable alternative at input 'ellipse(\n\nellipse();'";
     String output = processing.mode.java.preproc.issue.strategy.MessageSimplifierUtil.getOffendingArea(input);
-    Assert.assertEquals("ellipse(\n\nellipse();", output);
+    Assert.assertEquals("ellipse();", output);
   }
 
   @Test
