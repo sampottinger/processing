@@ -1,26 +1,26 @@
-package processing.mode.java.preproc.util.strategy;
+package processing.mode.java.preproc.issue.strategy;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import processing.mode.java.preproc.issue.IssueMessageSimplification;
-import processing.mode.java.preproc.issue.strategy.BadIdentifierMessageSimplifierStrategy;
+import processing.mode.java.preproc.issue.strategy.MissingChevMessageSimplifierStrategy;
 
 import java.util.Optional;
 
 
-public class BadIdentifierMessageSimplifierStrategyTest {
+public class MissingChevMessageSimplifierStrategyTest {
 
-  private processing.mode.java.preproc.issue.strategy.BadIdentifierMessageSimplifierStrategy strategy;
+  private processing.mode.java.preproc.issue.strategy.MissingChevMessageSimplifierStrategy strategy;
 
   @Before
   public void setup() {
-    strategy = new BadIdentifierMessageSimplifierStrategy();
+    strategy = new MissingChevMessageSimplifierStrategy();
   }
 
   @Test
   public void testPresent() {
-    Optional<IssueMessageSimplification> msg = strategy.simplify("test(a,01a");
+    Optional<IssueMessageSimplification> msg = strategy.simplify("class Test <a extends {");
     Assert.assertTrue(msg.isPresent());
   }
 

@@ -1,4 +1,4 @@
-package processing.mode.java.preproc.util.strategy;
+package processing.mode.java.preproc.issue.strategy;
 
 import processing.mode.java.preproc.issue.strategy.RegexTemplateMessageSimplifierStrategy;
 

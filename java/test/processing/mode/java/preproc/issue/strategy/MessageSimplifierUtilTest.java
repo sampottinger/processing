@@ -1,4 +1,4 @@
-package processing.mode.java.preproc.util.strategy;
+package processing.mode.java.preproc.issue.strategy;
 
 import org.junit.Assert;
 import org.junit.Test;
