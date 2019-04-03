@@ -59,9 +59,14 @@ public class MessageSimplifierUtil {
     String content = area.replace("no viable alternative at input \'", "");
 
     if (removeNewline) {
-      String[] contentLines = content.split("\\n");
-      System.err.println(Arrays.toString(contentLines));
-      content = contentLines[contentLines.length - 1];
+      String[] contentLines = content.replace("\n", "\\n").split("\\\\n");
+      if (contentLines.length == 1) {
+        content = contentLines[0];
+      } else {
+        content = contentLines[contentLines.length - 2]
+            + "\n"
+            + contentLines[contentLines.length - 1];
+      }
     }
 
     if (content.endsWith("'")) {

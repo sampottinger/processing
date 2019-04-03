@@ -38,4 +38,10 @@ public class MissingVariableNameMessageSimplifierStrategy
   public String getHintTemplate() {
     return MessageSimplifierUtil.getLocalStr("editor.status.missing.type");
   }
+
+  @Override
+  public boolean getAttributeToPrior() {
+    return true;
+  }
+
 }

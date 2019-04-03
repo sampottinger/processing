@@ -29,7 +29,7 @@ public class AssignmentMessageSimplifierStrategy extends RegexTemplateMessageSim
 
   @Override
   public String getRegexPattern() {
-    return "\\s*[0-9a-zA-Z\\_<>]+\\s*=\\s*.*";
+    return "[.\\n]*[0-9a-zA-Z\\_<>]+\\s*=[\\s';]*$";
   }
 
   @Override

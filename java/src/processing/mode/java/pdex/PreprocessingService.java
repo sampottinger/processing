@@ -407,7 +407,7 @@ public class PreprocessingService {
       );
     } catch (PdePreprocessIssueException e) {
       result.hasSyntaxErrors = true;
-      result.otherProblems.add(ProblemFactory.build(e.getIssue(), tabLineStarts, editor));
+      result.otherProblems.add(ProblemFactory.build(e.getIssue(), tabLineStarts, numLines, editor));
       return result.build();
     } catch (SketchException e) {
       throw new RuntimeException("Unexpected sketch exception in preprocessing: " + e);

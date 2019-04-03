@@ -33,7 +33,7 @@ public class ProblemFactoryTest {
 
   @Test
   public void buildWithEditor() {
-    Problem problem = ProblemFactory.build(pdePreprocessIssue, tabStarts, editor);
+    Problem problem = ProblemFactory.build(pdePreprocessIssue, tabStarts, 15, editor);
 
     Assert.assertEquals(3, problem.getLineNumber());
     Assert.assertEquals("test", problem.getMessage());

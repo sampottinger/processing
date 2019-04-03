@@ -71,8 +71,8 @@ public class PreprocessIssueMessageSimplifierFacade {
     strategies.add(new KnownMissingMessageSimplifierStrategy());
     strategies.add(new ExtraneousInputMessageSimplifierStrategy());
     strategies.add(new MismatchedInputMessageSimplifierStrategy());
-    strategies.add(new MissingVariableNameMessageSimplifierStrategy());
     strategies.add(new AssignmentMessageSimplifierStrategy());
+    strategies.add(new MissingVariableNameMessageSimplifierStrategy());
     strategies.add(new BadIdentifierMessageSimplifierStrategy());
     strategies.add(new MissingClassNameMessageSimplifierStrategy());
     strategies.add(new MissingMethodNameMessageSimplifierStrategy());
@@ -92,7 +92,7 @@ public class PreprocessIssueMessageSimplifierFacade {
    * @return An improved error message or the originalMessage if no improvements could be made.
    */
   public IssueMessageSimplification simplify(String originalMessage) {
-    //System.err.println(originalMessage);
+    System.err.println(originalMessage);
     Optional<IssueMessageSimplification> matching = strategies.stream()
         .map((x) -> x.simplify(originalMessage))
         .filter(Optional::isPresent)

@@ -21,15 +21,22 @@ public class ProblemFactory {
    * @return Newly created problem.
    */
   public static Problem build(PdePreprocessIssue pdePreprocessIssue, List<Integer> tabStarts,
-      Editor editor) {
+      int numLines, Editor editor) {
 
     int line = pdePreprocessIssue.getLine();
 
+    // Sometimes errors are reported one line past end of sketch. Fix that.
+    if (line >= numLines) {
+      line = numLines - 1;
+    }
+
+    // Get local area
     TabLine tabLine = TabLineFactory.getTab(tabStarts, line);
 
     int tab = tabLine.getTab();
     int localLine = tabLine.getLineInTab(); // Problems emitted in 0 index
 
+    // Generate syntax problem
     String message = pdePreprocessIssue.getMsg();
 
     int lineStart = editor.getLineStartOffset(localLine);
