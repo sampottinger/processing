@@ -62,18 +62,13 @@ public class ParserTests {
     }
   }
 
-  static void expectCompilerException(final String id,
-                                      final int expectedLine) {
+  static void expectCompilerException(final String id) {
     try {
       final String program = preprocess(id, res(id + ".pde"));
       final ProcessResult compilerResult = COMPILER.compile(id, program);
       if (compilerResult.succeeded()) {
-        fail("Expected to fail with on line "  + expectedLine);
+        fail("Expected to fail.");
       }
-      final String e = compilerResult.getStderr().split("\n")[0];
-      final Matcher m = Pattern.compile(":(\\d+):\\s+(.+)$").matcher(e);
-      m.find();
-      assertEquals(String.valueOf(expectedLine), m.group(1));
     } catch (Exception e) {
       if (!e.equals(e.getCause()) && e.getCause() != null)
         fail(e.getCause().toString());
@@ -200,7 +195,7 @@ public class ParserTests {
 
   @Test
   public void bug820() {
-    expectCompilerException("bug820", 19);
+    expectCompilerException("bug820");
   }
 
   @Test
@@ -210,7 +205,7 @@ public class ParserTests {
 
   @Test
   public void bug1145() {
-    expectCompilerException("bug1145", 6);
+    expectCompilerException("bug1145");
   }
 
   @Test
