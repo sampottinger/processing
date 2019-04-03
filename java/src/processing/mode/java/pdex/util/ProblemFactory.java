@@ -42,6 +42,10 @@ public class ProblemFactory {
     int lineStart = editor.getLineStartOffset(localLine);
     int lineStop = editor.getLineStopOffset(localLine) - 1;
 
+    if (lineStart == lineStop) {
+      lineStop++;
+    }
+
     return new SyntaxProblem(
         tab,
         localLine,
