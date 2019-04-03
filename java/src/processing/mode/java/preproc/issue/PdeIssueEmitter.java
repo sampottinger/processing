@@ -28,8 +28,6 @@ import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
 import processing.mode.java.preproc.SourceEmitter;
-import processing.mode.java.preproc.code.SyntaxUtil;
-import processing.mode.java.preproc.issue.strategy.MessageSimplifierUtil;
 
 import java.util.BitSet;
 import java.util.Optional;
@@ -41,7 +39,7 @@ import java.util.Optional;
  * <p>
  *   A {BaseErrorListener} which looks for syntax errors reported by ANTLR and converts them to
  *   {PdePreprocessIssue}s that are consumable by a {PdePreprocessIssueListener}. It does this by
- *   running the {PreprocessIssueMessageSimplifier} to generate a more user-friendly error message
+ *   running the {PreprocessIssueMessageSimplifierFacade} to generate a more user-friendly error message
  *   before informing the provided listener.
  * </p>
  */
@@ -82,13 +80,7 @@ public class PdeIssueEmitter extends BaseErrorListener {
   public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
                           int charPositionInLine, String msg, RecognitionException e) {
 
-    if (msg.contains("\\n")) {
-      String msgContent = MessageSimplifierUtil.getOffendingArea(msg, false);
-      line -= SyntaxUtil.getCount(msgContent, "\\n");
-      charPositionInLine = msgContent.length();
-    }
-
-    IssueMessageSimplification simplification = PreprocessIssueMessageSimplifier.get().simplify(msg);
+    IssueMessageSimplification simplification = PreprocessIssueMessageSimplifierFacade.get().simplify(msg);
 
     IssueLocation issueLocation;
 

@@ -45,9 +45,9 @@ import java.util.concurrent.atomic.AtomicReference;
  *   operates on issues generated after preprocessing has been successful.
  * </p>
  */
-public class PreprocessIssueMessageSimplifier {
+public class PreprocessIssueMessageSimplifierFacade {
 
-  private static AtomicReference<PreprocessIssueMessageSimplifier> instance = new AtomicReference<>();
+  private static AtomicReference<PreprocessIssueMessageSimplifierFacade> instance = new AtomicReference<>();
 
   private List<PreprocIssueMessageSimplifierStrategy> strategies;
 
@@ -57,15 +57,15 @@ public class PreprocessIssueMessageSimplifier {
    * @return Shared instance of this singleton, creating that shared instance if one did not exist
    *    previously.
    */
-  public static PreprocessIssueMessageSimplifier get() {
-    instance.compareAndSet(null, new PreprocessIssueMessageSimplifier());
+  public static PreprocessIssueMessageSimplifierFacade get() {
+    instance.compareAndSet(null, new PreprocessIssueMessageSimplifierFacade());
     return instance.get();
   }
 
   /**
    * Create a new syntax issue message simplifier with the default simplifier strategies.
    */
-  private PreprocessIssueMessageSimplifier() {
+  private PreprocessIssueMessageSimplifierFacade() {
     strategies = new ArrayList<>();
     strategies.add(new MissingIdentifierMessageSimplifierStrategy());
     strategies.add(new KnownMissingMessageSimplifierStrategy());

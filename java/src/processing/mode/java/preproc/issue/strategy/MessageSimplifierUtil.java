@@ -24,6 +24,8 @@ package processing.mode.java.preproc.issue.strategy;
 import processing.app.Language;
 import processing.app.Platform;
 
+import java.util.Arrays;
+
 
 /**
  * Convenience functions useful for generating simplified messages.
@@ -57,9 +59,9 @@ public class MessageSimplifierUtil {
     String content = area.replace("no viable alternative at input \'", "");
 
     if (removeNewline) {
-        content = content
-            .replace("\n", "")
-            .replace("\\n", "");
+      String[] contentLines = content.split("\\n");
+      System.err.println(Arrays.toString(contentLines));
+      content = contentLines[contentLines.length - 1];
     }
 
     if (content.endsWith("'")) {

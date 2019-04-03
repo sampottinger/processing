@@ -68,7 +68,7 @@ import processing.mode.java.preproc.code.SyntaxUtil;
  */
 public class PreprocessingService {
 
-  private final static int TIMEOUT_MILLIS = 100;
+  private final static int TIMEOUT_MILLIS = 1000;
   private final static int BLOCKING_TIMEOUT_SECONDS = 3000;
 
   protected final JavaEditor editor;

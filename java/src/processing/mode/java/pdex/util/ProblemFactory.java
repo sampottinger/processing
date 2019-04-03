@@ -29,18 +29,18 @@ public class ProblemFactory {
 
     int tab = tabLine.getTab();
     int localLine = tabLine.getLineInTab(); // Problems emitted in 0 index
-    int col = pdePreprocessIssue.getCharPositionInLine();
 
     String message = pdePreprocessIssue.getMsg();
 
     int lineStart = editor.getLineStartOffset(localLine);
+    int lineStop = editor.getLineStopOffset(localLine) - 1;
 
     return new SyntaxProblem(
         tab,
         localLine,
         message,
         lineStart,
-        lineStart + col
+        lineStop
     );
   }
 
