@@ -31,17 +31,12 @@ public class MissingVariableNameMessageSimplifierStrategy
 
   @Override
   public String getRegexPattern() {
-    return "[a-zA-Z_]+[0-9a-zA-Z_]*\\s*(=[^\n]*|;)[^\n]*";
+    return "[a-zA-Z_]+[0-9a-zA-Z_]*\\s*(=[^\n\\n;]*)?;'?$";
   }
 
   @Override
   public String getHintTemplate() {
     return MessageSimplifierUtil.getLocalStr("editor.status.missing.type");
-  }
-
-  @Override
-  public boolean getAttributeToPrior() {
-    return true;
   }
 
 }

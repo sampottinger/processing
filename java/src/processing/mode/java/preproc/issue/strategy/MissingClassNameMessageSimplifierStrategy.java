@@ -36,9 +36,4 @@ public class MissingClassNameMessageSimplifierStrategy extends RegexTemplateMess
     return MessageSimplifierUtil.getLocalStr("editor.status.missing.name");
   }
 
-  @Override
-  public boolean getAttributeToPrior() {
-    return true;
-  }
-
 }

@@ -20,7 +20,7 @@ public class MissingVariableNameMessageSimplifierStrategyTest {
 
   @Test
   public void testPresent() {
-    Optional<IssueMessageSimplification> msg = strategy.simplify("char = '");
+    Optional<IssueMessageSimplification> msg = strategy.simplify("char = ';");
     Assert.assertTrue(msg.isPresent());
   }
 
