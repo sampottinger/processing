@@ -60,13 +60,7 @@ public class MessageSimplifierUtil {
 
     if (removeNewline) {
       String[] contentLines = content.replace("\n", "\\n").split("\\\\n");
-      if (contentLines.length == 1) {
-        content = contentLines[0];
-      } else {
-        content = contentLines[contentLines.length - 2]
-            + "\n"
-            + contentLines[contentLines.length - 1];
-      }
+      content = contentLines[contentLines.length - 1];
     }
 
     if (content.endsWith("'")) {
