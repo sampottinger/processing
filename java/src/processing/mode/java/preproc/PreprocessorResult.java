@@ -55,7 +55,7 @@ public class PreprocessorResult {
   /**
    * Get the end point of the header.
    *
-   * @return The offset (in number of chars) from the start of the program at which the header
+   * @return The offset (in number of lines) from the start of the program at which the header
    *    finishes.
    */
   public int getHeaderOffset() {

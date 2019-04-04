@@ -30,8 +30,13 @@ javaProcessingSketch
     ;
 
 // static mode, has statements
+nonClassBlockStatement
+	:	localVariableDeclarationStatement
+	|	statement
+	;
+
 staticProcessingSketch
-    :   (importDeclaration | blockStatement)* EOF
+    :   (importDeclaration | nonClassBlockStatement)* EOF
     ;
 
 // active mode, has function definitions

@@ -456,6 +456,7 @@ public class PreprocessingService {
 
     // Create intermediate AST for advanced preprocessing
     //System.out.addEmptyLine(new String(parsableStage.toCharArray()));
+    //System.out.println(new String(parsableStage.toCharArray()));
     CompilationUnit parsableCU =
         makeAST(parser, parsableStage.toCharArray(), COMPILER_OPTIONS);
 

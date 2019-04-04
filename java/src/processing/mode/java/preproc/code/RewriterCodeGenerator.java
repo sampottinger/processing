@@ -128,8 +128,6 @@ public class RewriterCodeGenerator {
   private void writePreprocessorComment(PrintWriterWithEditGen headerWriter, RewriteParams params,
     RewriteResultBuilder resultBuilder) {
 
-    resultBuilder.addOffset(1);
-
     String dateStr = new SimpleDateFormat("YYYY-MM-dd").format(new Date());
 
     String newCode = String.format(
@@ -183,11 +181,9 @@ public class RewriterCodeGenerator {
         RewriteResultBuilder resultBuilder) {
 
     for (String importDecl : imports) {
-      resultBuilder.addOffset(1);
       headerWriter.addCodeLine("import " + importDecl + ";");
     }
     if (imports.length > 0) {
-      resultBuilder.addOffset(1);
       headerWriter.addEmptyLine();
     }
   }
@@ -202,10 +198,8 @@ public class RewriterCodeGenerator {
   private void writeClassHeader(PrintWriterWithEditGen headerWriter, RewriteParams params,
         RewriteResultBuilder resultBuilder) {
 
-    resultBuilder.addOffset(1);
     headerWriter.addCodeLine("public class " + params.getSketchName() + " extends PApplet {");
 
-    resultBuilder.addOffset(1);
     headerWriter.addEmptyLine();
   }
 
@@ -219,7 +213,6 @@ public class RewriterCodeGenerator {
   private void writeStaticSketchHeader(PrintWriterWithEditGen headerWriter, RewriteParams params,
         RewriteResultBuilder resultBuilder) {
 
-    resultBuilder.addOffset(1);
     headerWriter.addCodeLine(indent1 + "public void setup() {");
   }
 
