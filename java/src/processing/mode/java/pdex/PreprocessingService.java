@@ -405,12 +405,19 @@ public class PreprocessingService {
           new StringWriter(),
           result.scrubbedPdeCode
       );
-    } catch (PdePreprocessIssueException e) {
-      result.hasSyntaxErrors = true;
-      result.otherProblems.add(ProblemFactory.build(e.getIssue(), tabLineStarts, numLines, editor));
-      return result.build();
     } catch (SketchException e) {
       throw new RuntimeException("Unexpected sketch exception in preprocessing: " + e);
+    }
+
+    if (preprocessorResult.getPreprocessIssues().size() > 0) {
+      final int endNumLines = numLines;
+
+      preprocessorResult.getPreprocessIssues().stream()
+          .map((x) -> ProblemFactory.build(x, tabLineStarts, endNumLines, editor))
+          .forEach(result.otherProblems::add);
+
+      result.hasSyntaxErrors = true;
+      return result.build();
     }
 
     // Save off the imports

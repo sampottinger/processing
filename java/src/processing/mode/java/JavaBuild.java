@@ -236,6 +236,7 @@ public class JavaBuild {
       final PrintWriter stream = new PrintWriter(new FileWriter(java));
       try {
         result = preprocessor.write(stream, bigCode.toString(), codeFolderPackages);
+        // TODO: need use of preprocess
       } finally {
         stream.close();
       }
@@ -243,18 +244,6 @@ public class JavaBuild {
       fnfe.printStackTrace();
       String msg = "Build folder disappeared or could not be written";
       throw new SketchException(msg);
-    } catch (PdePreprocessIssueException pe) {
-      Problem problem = ProblemFactory.build(
-          pe.getIssue(),
-          linesPerTab
-      );
-
-      throw new SketchException(
-          problem.getMessage(),
-          problem.getTabIndex(),
-          problem.getLineNumber() - 1,
-          0
-      );
     } catch (SketchException pe) {
       // RunnerExceptions are caught here and re-thrown, so that they don't
       // get lost in the more general "Exception" handler below.
@@ -265,6 +254,20 @@ public class JavaBuild {
       System.err.println("Uncaught exception type:" + ex.getClass());
       ex.printStackTrace();
       throw new SketchException(ex.toString());
+    }
+
+    if (result.getPreprocessIssues().size() > 0) {
+      Problem problem = ProblemFactory.build(
+          result.getPreprocessIssues().get(0),
+          linesPerTab
+      );
+
+      throw new SketchException(
+          problem.getMessage(),
+          problem.getTabIndex(),
+          problem.getLineNumber() - 1,
+          0
+      );
     }
 
     // grab the imports from the code just preprocessed

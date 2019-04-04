@@ -4,7 +4,6 @@ package processing.mode.java.preproc;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -14,9 +13,8 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import processing.app.Preferences;
 import processing.app.SketchException;
-import processing.mode.java.pdex.ImportStatement;
 import processing.mode.java.preproc.issue.PdeIssueEmitter;
-import processing.mode.java.preproc.issue.PdePreprocessIssueException;
+import processing.mode.java.preproc.issue.PdePreprocessIssue;
 
 
 public class PdePreprocessor {
@@ -90,16 +88,21 @@ public class PdePreprocessor {
     listener.setCodeFolderImports(codeFolderImports);
 
     final String finalInProgram = inProgram;
+    final List<PdePreprocessIssue> preprocessIssues = new ArrayList<>();
     ParseTree tree;
     {
       ProcessingParser parser = new ProcessingParser(tokens);
       parser.removeErrorListeners();
       parser.addErrorListener(new PdeIssueEmitter(
-          (x) -> { throw new PdePreprocessIssueException(x); },
+          (x) -> { preprocessIssues.add(x); },
           () -> finalInProgram
       ));
       parser.setBuildParseTree(true);
       tree = parser.processingSketch();
+
+      if (preprocessIssues.size() > 0) {
+        return PreprocessorResult.reportPreprocessIssues(preprocessIssues);
+      }
     }
 
     ParseTreeWalker treeWalker = new ParseTreeWalker();

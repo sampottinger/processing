@@ -16,6 +16,7 @@ import org.junit.Test;
 import processing.app.Platform;
 import processing.app.SketchException;
 import processing.app.exec.ProcessResult;
+import processing.mode.java.preproc.PreprocessorResult;
 import processing.mode.java.preproc.issue.PdePreprocessIssueException;
 
 
@@ -29,6 +30,7 @@ public class ParserTests {
   static void expectRecognitionException(final String id,
                                          final int expectedLine) {
 
+    PreprocessorResult result;
     try {
       preprocess(id, res(id + ".pde"));
       fail("Expected to fail with on line " + expectedLine);

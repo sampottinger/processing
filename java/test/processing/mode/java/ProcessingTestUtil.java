@@ -8,6 +8,8 @@ import java.io.StringWriter;
 import processing.app.Preferences;
 import processing.app.SketchException;
 import processing.mode.java.preproc.PdePreprocessor;
+import processing.mode.java.preproc.PreprocessorResult;
+import processing.mode.java.preproc.issue.PdePreprocessIssueException;
 
 
 public class ProcessingTestUtil {
@@ -37,7 +39,12 @@ public class ProcessingTestUtil {
       throws SketchException {
     final String program = read(resource);
     final StringWriter out = new StringWriter();
-    new PdePreprocessor(name, 4, true).write(out, program);
+    PreprocessorResult result = new PdePreprocessor(name, 4, true).write(out, program);
+
+    if (result.getPreprocessIssues().size() > 0) {
+      throw new PdePreprocessIssueException(result.getPreprocessIssues().get(0));
+    }
+
     return normalize(out);
   }
   

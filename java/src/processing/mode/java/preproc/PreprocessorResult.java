@@ -10,6 +10,7 @@ import processing.app.SketchException;
 import processing.mode.java.pdex.ImportStatement;
 import processing.mode.java.pdex.TextTransform;
 import processing.mode.java.preproc.PdePreprocessor;
+import processing.mode.java.preproc.issue.PdePreprocessIssue;
 
 
 /**
@@ -23,6 +24,13 @@ public class PreprocessorResult {
   private final List<ImportStatement> importStatements;
   private final PdePreprocessor.Mode programType;
   private final List<TextTransform.Edit> edits;
+  private final List<PdePreprocessIssue> preprocessIssues;
+
+  public static PreprocessorResult reportPreprocessIssues(
+      List<PdePreprocessIssue> newPreprocessIssues) {
+
+    return new PreprocessorResult(newPreprocessIssues);
+  }
 
   /**
    * Create a new preprocessing result.
@@ -46,10 +54,25 @@ public class PreprocessorResult {
     extraImports = Collections.unmodifiableList(new ArrayList<>(newExtraImports));
     programType = newProgramType;
     edits = newEdits;
+    preprocessIssues = new ArrayList<>();
 
     importStatements = extraImports.stream()
         .map(ImportStatement::parse)
         .collect(Collectors.toList());
+  }
+
+  private PreprocessorResult(List<PdePreprocessIssue> newPreprocessIssues) {
+    preprocessIssues = Collections.unmodifiableList(newPreprocessIssues);
+    headerOffset = 0;
+    className = "unknown";
+    extraImports = new ArrayList<>();
+    programType = PdePreprocessor.Mode.STATIC;
+    edits = new ArrayList<>();
+    importStatements = new ArrayList<>();
+  }
+
+  public List<PdePreprocessIssue> getPreprocessIssues() {
+    return preprocessIssues;
   }
 
   /**
