@@ -8,6 +8,7 @@ import static processing.mode.java.ProcessingTestUtil.*;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.BeforeClass;
@@ -108,7 +109,14 @@ public class ParserTests {
               .replace("\n", "")
               .replace("\r", "");
 
-          assertEquals(expectedStrip, actualStrip);
+          if (!expectedStrip.equals(actualStrip)) {
+            System.err.println("Expected >>>>>>>");
+            System.err.println(expected);
+            System.err.println("<<<<<<< Got >>>>>>>");
+            System.err.println(program);
+            System.err.println("<<<<<<<");
+            assertEquals(expectedStrip, actualStrip);
+          }
         } else {
           assertEquals(expected, program);
         }
@@ -120,13 +128,10 @@ public class ParserTests {
         sug.close();
       }
 
-    } catch (Exception e) {
-      if (!e.equals(e.getCause()) && e.getCause() != null) {
-        fail(e.getCause().toString());
-      } else {
-        e.printStackTrace();
-        fail(e.toString());
-      }
+    } catch (SketchException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 
@@ -323,6 +328,11 @@ public class ParserTests {
   @Test
   public void lambda() {
     expectGood("lambdaexample", true);
+  }
+
+  @Test
+  public void specialMethods() {
+    expectGood("speicalmethods", true);
   }
 
 }

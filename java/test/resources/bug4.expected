@@ -17,8 +17,12 @@ public class bug4 extends PApplet {
     public void setup() {
 int x = 12;
 float u = (PApplet.parseFloat(x)/width);
+/* commented out by preprocessor: size(100,100) */;
+
         noLoop();
     }
+
+    public void settings() { size(100,100); }
 
     static public void main(String[] passedArgs) {
         String[] appletArgs = new String[] { "bug4" };

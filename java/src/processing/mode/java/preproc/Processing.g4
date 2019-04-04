@@ -77,13 +77,21 @@ specialMethodDeclaration
 	:	'public'? 'void' ( 'setup'
 		|	'draw'
 		|	'settings'
+		|   'mouseClicked'
+		|   'mouseDragged'
+		|   'mouseMoved'
+		|   'mousePressed'
+		|   'mouseReleased'
+		|   'mouseWheel'
+		|   'keyPressed'
+		|   'keyReleased'
+		|   'keyTyped'
 		) '(' ')' methodBody
 	;
 
 // catch special API function calls that we are interested in
 methodInvocation
-    :   apiFunction
-    |   functionWithPrimitiveTypeName
+    :   functionWithPrimitiveTypeName
 	|	methodName '(' argumentList? ')'
 	|	typeName '.' typeArguments? Identifier '(' argumentList? ')'
 	|	expressionName '.' typeArguments? Identifier '(' argumentList? ')'
@@ -93,22 +101,13 @@ methodInvocation
 	;
 
 methodInvocation_lfno_primary
-    :   apiFunction
-    |   functionWithPrimitiveTypeName
+    :   functionWithPrimitiveTypeName
 	|	methodName '(' argumentList? ')'
 	|	typeName '.' typeArguments? Identifier '(' argumentList? ')'
 	|	expressionName '.' typeArguments? Identifier '(' argumentList? ')'
 	|	'super' '.' typeArguments? Identifier '(' argumentList? ')'
 	|	typeName '.' 'super' '.' typeArguments? Identifier '(' argumentList? ')'
 	;
-
-apiFunction
-    :   apiSizeFunction
-    ;
-
-apiSizeFunction
-    : 'size' '(' expression ',' expression ( ',' expression )? ')'
-    ;
 
 // these are primitive type names plus "()"
 // "color" is a special Processing primitive (== int)
