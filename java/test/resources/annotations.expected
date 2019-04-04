@@ -19,7 +19,7 @@ public class annotations extends PApplet {
 
 
 public void setup() {
-    size(200,200);
+    /* commented out by preprocessor: size(200,200) */;
 }
 
 @Deprecated
@@ -42,6 +42,9 @@ class Apple implements Serializable {
     comments="Shazam!",
     date="2001-07-04T12:08:56.235-0700")
 class Pear {}
+
+
+    public void settings() { size(200,200); }
 
     static public void main(String[] passedArgs) {
         String[] appletArgs = new String[] { "annotations" };
