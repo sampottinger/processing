@@ -28,6 +28,7 @@ import java.util.*;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.Interval;
 
+import org.antlr.v4.runtime.tree.ParseTree;
 import processing.core.PApplet;
 import processing.mode.java.pdex.TextTransform;
 import processing.mode.java.preproc.PdePreprocessor.Mode;
@@ -47,6 +48,7 @@ import processing.mode.java.preproc.code.*;
 public class PdeParseTreeListener extends ProcessingBaseListener {
 
   private final static String VERSION_STR = "3.0.0";
+  private static final String SIZE_METHOD_NAME = "size";
   private final int tabSize;
 
   private int headerOffset;
@@ -230,14 +232,24 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
    *
    * @param ctx The ANTLR context for the method call.
    */
-  public void exitApiSizeFunction(ProcessingParser.ApiSizeFunctionContext ctx) {
+  public void exitMethodInvocation(ProcessingParser.MethodInvocationContext ctx) {
+    if (SIZE_METHOD_NAME.equals(ctx.getChild(0).getText())) {
+      handleSizeCall(ctx);
+    }
+  }
+
+  public void exitMethodInvocation_lfno_primary(ProcessingParser.MethodInvocation_lf_primaryContext ctx) {
+    if (SIZE_METHOD_NAME.equals(ctx.getChild(0).getText())) {
+      handleSizeCall(ctx);
+    }
+  }
+
+  private void handleSizeCall(ParserRuleContext ctx) {
     // this tree climbing could be avoided if grammar is
     // adjusted to force context of size()
 
     ParserRuleContext testCtx =
-      ctx.getParent() // apiFunction
-      .getParent() // methodInvocation
-      .getParent() // statementExpression
+      ctx.getParent() // statementExpression
       .getParent() // expressionStatement
       .getParent() // statementWithoutTrailingSubstatement
       .getParent() // statement
@@ -247,22 +259,45 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     boolean isInGlobal =
       testCtx instanceof ProcessingParser.StaticProcessingSketchContext;
 
+    boolean isInSetup;
+    if (!isInGlobal) {
+      ParserRuleContext methodDeclaration = testCtx.getParent()
+          .getParent()
+          .getParent();
+
+      boolean isInSpecial = methodDeclaration instanceof
+          ProcessingParser.SpecialMethodDeclarationContext;
+
+      isInSetup = isInSpecial && isMethodSetup(methodDeclaration);
+    } else {
+      isInSetup = false;
+    }
+
     isSizeValidInGlobal = false;
 
-    if (isInGlobal) {
+    ParseTree argsContext = ctx.getChild(2);
+    boolean hasArgs = argsContext instanceof ProcessingParser.ArgumentListContext;
+    if (!hasArgs) {
+      return; // Try to handle this as a regular call
+    }
+
+    if (hasArgs && (isInGlobal || isInSetup)) {
       isSizeValidInGlobal = true;
-      sketchWidth = ctx.getChild(2).getText();
+
+      sketchWidth = argsContext.getChild(0).getText();
       if (PApplet.parseInt(sketchWidth, -1) == -1 &&
           !sketchWidth.equals("displayWidth")) {
         isSizeValidInGlobal = false;
       }
-      sketchHeight = ctx.getChild(4).getText();
+
+      sketchHeight = argsContext.getChild(2).getText();
       if (PApplet.parseInt(sketchHeight, -1) == -1 &&
           !sketchHeight.equals("displayHeight")) {
         isSizeValidInGlobal = false;
       }
-      if (ctx.getChildCount() > 6) {
-        sketchRenderer = ctx.getChild(6).getText();
+
+      if (argsContext.getChildCount() > 4) {
+        sketchRenderer = argsContext.getChild(4).getText();
         if (!(sketchRenderer.equals("P2D") ||
               sketchRenderer.equals("P3D") ||
               sketchRenderer.equals("OPENGL") ||
@@ -271,6 +306,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
           isSizeValidInGlobal = false;
         }
       }
+
       if (isSizeValidInGlobal) {
         // TODO: uncomment if size is supposed to be removed from setup()
         createInsertBefore(
@@ -280,7 +316,13 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
 
         createInsertAfter(ctx.stop, " */");
       }
+
     }
+  }
+
+  private boolean isMethodSetup(ParserRuleContext methodDeclaration) {
+    return methodDeclaration.getChild(1).getText().equals("setup") ||
+        methodDeclaration.getChild(2).getText().equals("setup");
   }
 
   /**
