@@ -26,9 +26,16 @@ public class PreprocessorResult {
   private final List<TextTransform.Edit> edits;
   private final List<PdePreprocessIssue> preprocessIssues;
 
+  /**
+   * Create a new PreprocessorResult indicating that there were issues in preprocessing.
+   *
+   * @param newPreprocessIssues The list of issues encoutnered.
+   * @return New preprocessor result.
+   */
   public static PreprocessorResult reportPreprocessIssues(
       List<PdePreprocessIssue> newPreprocessIssues) {
 
+    assert newPreprocessIssues.size() > 0;
     return new PreprocessorResult(newPreprocessIssues);
   }
 
@@ -61,6 +68,11 @@ public class PreprocessorResult {
         .collect(Collectors.toList());
   }
 
+  /**
+   * Private constructor allowing creation of result indicating preprocess issues.
+   *
+   * @param newPreprocessIssues The list of preprocess issues encountered.
+   */
   private PreprocessorResult(List<PdePreprocessIssue> newPreprocessIssues) {
     preprocessIssues = Collections.unmodifiableList(newPreprocessIssues);
     headerOffset = 0;
@@ -71,6 +83,11 @@ public class PreprocessorResult {
     importStatements = new ArrayList<>();
   }
 
+  /**
+   * Get the list of preprocess issues encountered.
+   *
+   * @return List of preprocess issues encountered.
+   */
   public List<PdePreprocessIssue> getPreprocessIssues() {
     return preprocessIssues;
   }
