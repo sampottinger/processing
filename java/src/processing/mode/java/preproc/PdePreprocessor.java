@@ -52,6 +52,7 @@ public class PdePreprocessor {
                                   Iterable<String> codeFolderPackages)
                                     throws SketchException {
 
+
     // Determine inports
     ArrayList<String> codeFolderImports = new ArrayList<>();
     if (codeFolderPackages != null) {

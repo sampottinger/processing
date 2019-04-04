@@ -348,8 +348,6 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
       return false;
     }
 
-    System.err.println(methodDeclarator.getChild(0).getText());
-
     return methodDeclarator.getChild(0).getText().equals("setup");
   }
 
