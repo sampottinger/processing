@@ -221,7 +221,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
    *
    * @param ctx The ANTLR context for the method declaration.
    */
-  public void exitSpecialMethodDeclaration(ProcessingParser.SpecialMethodDeclarationContext ctx) {
+  /*public void exitSpecialMethodDeclaration(ProcessingParser.SpecialMethodDeclarationContext ctx) {
     String modifier = ctx.getChild(0).getText();
 
     boolean hasPrefix = modifier.equals("public");
@@ -231,7 +231,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     if (!hasPrefix) {
       createInsertBefore(ctx.start, "public ");
     }
-  }
+  }*/
 
   /**
    * Endpoint for ANTLR to call when finished parsing a size function call.
@@ -271,10 +271,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
           .getParent()
           .getParent();
 
-      boolean isInSpecial = methodDeclaration instanceof
-          ProcessingParser.SpecialMethodDeclarationContext;
-
-      isInSetup = isInSpecial && isMethodSetup(methodDeclaration);
+      isInSetup = isMethodSetup(methodDeclaration);
     } else {
       isInSetup = false;
     }
@@ -327,8 +324,33 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
   }
 
   private boolean isMethodSetup(ParserRuleContext methodDeclaration) {
-    return methodDeclaration.getChild(1).getText().equals("setup") ||
-        methodDeclaration.getChild(2).getText().equals("setup");
+    ParseTree methodHeader = null;
+
+    for (int i = 0; i < methodDeclaration.getChildCount(); i++) {
+      if (methodDeclaration.getChild(i) instanceof ProcessingParser.MethodHeaderContext) {
+        methodHeader = methodDeclaration.getChild(i);
+      }
+    }
+
+    if (methodHeader == null) {
+      return false;
+    }
+
+    ParseTree methodDeclarator = null;
+
+    for (int i = 0; i < methodHeader.getChildCount(); i++) {
+      if (methodHeader.getChild(i) instanceof ProcessingParser.MethodDeclaratorContext) {
+        methodDeclarator = methodHeader.getChild(i);
+      }
+    }
+
+    if (methodDeclarator == null) {
+      return false;
+    }
+
+    System.err.println(methodDeclarator.getChild(0).getText());
+
+    return methodDeclarator.getChild(0).getText().equals("setup");
   }
 
   /**
@@ -442,7 +464,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
         clsDclCtx.getChild(2).getText().equals("extends") &&
         clsDclCtx.getChild(3).getText().endsWith("PApplet"));
 
-    boolean voidType = ctx.getChild(0).getText().equals("void");
+    boolean voidType = ctx.getChild(0).getChild(0).getText().equals("void");
 
     // not the first, so no mod before
     boolean hasModifier = clsBdyDclCtx.getChild(0) != memCtx;
