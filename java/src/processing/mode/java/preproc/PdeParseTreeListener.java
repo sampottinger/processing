@@ -222,7 +222,13 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
    * @param ctx The ANTLR context for the method declaration.
    */
   public void exitSpecialMethodDeclaration(ProcessingParser.SpecialMethodDeclarationContext ctx) {
-    if (!ctx.getChild(0).getText().equals("public")) {
+    String modifier = ctx.getChild(0).getText();
+
+    boolean hasPrefix = modifier.equals("public");
+    hasPrefix = hasPrefix || modifier.equals("private");
+    hasPrefix = hasPrefix || modifier.equals("protected");
+
+    if (!hasPrefix) {
       createInsertBefore(ctx.start, "public ");
     }
   }

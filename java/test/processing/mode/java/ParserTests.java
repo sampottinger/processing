@@ -335,4 +335,9 @@ public class ParserTests {
     expectGood("speicalmethods", true);
   }
 
+  @Test
+  public void specialMethodsPrivate() {
+    expectGood("specialmethodsprivate", true);
+  }
+
 }
