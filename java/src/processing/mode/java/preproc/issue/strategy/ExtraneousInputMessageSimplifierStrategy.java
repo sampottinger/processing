@@ -38,7 +38,7 @@ public class ExtraneousInputMessageSimplifierStrategy
       String innerMsg = MessageSimplifierUtil.getOffendingArea(message);
 
       String newMessageOuter = MessageSimplifierUtil.getLocalStr("editor.status.extraneous");
-      String newMessage = String.foramt(newMessageOuter, innerMsg);
+      String newMessage = String.format(newMessageOuter, innerMsg);
 
       return Optional.of(
           new IssueMessageSimplification(newMessage)
