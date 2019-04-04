@@ -23,7 +23,7 @@ For building on your local machine, please see https://gist.github.com/sampottin
 
 Development / Issues
 --------------------------------------------------------------
-Please beta test! Until further dicussion at [Support for Java 11, OpenJDK, and OpenJFX](https://github.com/processing/processing/pull/5753), please open issues on this fork. If you are offering code related tothe changes pending review (Java 11, OpenJDK, OpenJFX, ANTLR 4, or CI), feel free to open PRs here. Otherwise, please contribute back to the [main repo](https://github.com/processing/processing).
+Please beta test! Until further dicussion at [Support for Java 11, OpenJDK, and OpenJFX](https://github.com/processing/processing/pull/5753), please report issues on this fork via comments on PRs. If you are offering code related tothe changes pending review (Java 11, OpenJDK, OpenJFX, ANTLR 4, or CI), feel free to open PRs here. Otherwise, please contribute back to the [main repo](https://github.com/processing/processing).
 
 <br>
 
