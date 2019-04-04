@@ -236,6 +236,7 @@ public class JavaBuild {
       final PrintWriter stream = new PrintWriter(new FileWriter(java));
       try {
         result = preprocessor.write(stream, bigCode.toString(), codeFolderPackages);
+        // TODO: need use of preprocess
       } finally {
         stream.close();
       }
@@ -243,18 +244,6 @@ public class JavaBuild {
       fnfe.printStackTrace();
       String msg = "Build folder disappeared or could not be written";
       throw new SketchException(msg);
-    } catch (PdePreprocessIssueException pe) {
-      Problem problem = ProblemFactory.build(
-          pe.getIssue(),
-          linesPerTab
-      );
-
-      throw new SketchException(
-          problem.getMessage(),
-          problem.getTabIndex(),
-          problem.getLineNumber() - 1,
-          0
-      );
     } catch (SketchException pe) {
       // RunnerExceptions are caught here and re-thrown, so that they don't
       // get lost in the more general "Exception" handler below.
@@ -265,6 +254,20 @@ public class JavaBuild {
       System.err.println("Uncaught exception type:" + ex.getClass());
       ex.printStackTrace();
       throw new SketchException(ex.toString());
+    }
+
+    if (result.getPreprocessIssues().size() > 0) {
+      Problem problem = ProblemFactory.build(
+          result.getPreprocessIssues().get(0),
+          linesPerTab
+      );
+
+      throw new SketchException(
+          problem.getMessage(),
+          problem.getTabIndex(),
+          problem.getLineNumber() - 1,
+          0
+      );
     }
 
     // grab the imports from the code just preprocessed
@@ -493,8 +496,8 @@ public class JavaBuild {
     int codeIndex = 0; //-1;
     int codeLine = -1;
 
-//    System.out.addEmptyLine("placing " + dotJavaFilename + " " + dotJavaLine);
-//    System.out.addEmptyLine("code count is " + getCodeCount());
+    //System.out.println(message + " placing " + dotJavaFilename + " " + dotJavaLine);
+    //System.out.addEmptyLine("code count is " + getCodeCount());
 
     // first check to see if it's a .java file
     for (int i = 0; i < sketch.getCodeCount(); i++) {
@@ -520,8 +523,8 @@ public class JavaBuild {
       SketchCode code = sketch.getCode(i);
 
       if (code.isExtension("pde")) {
-//        System.out.addEmptyLine("preproc offset is " + code.getPreprocOffset());
-//        System.out.addEmptyLine("looking for line " + dotJavaLine);
+        //System.out.println("preproc offset is " + code.getPreprocOffset());
+        //System.out.println("looking for line " + dotJavaLine);
         if (code.getPreprocOffset() <= dotJavaLine) {
           codeIndex = i;
 //          System.out.addEmptyLine("i'm thinkin file " + i);

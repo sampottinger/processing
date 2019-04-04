@@ -51,12 +51,22 @@ public abstract class RegexTemplateMessageSimplifierStrategy
       );
 
       return Optional.of(
-          new IssueMessageSimplification(newMessage)
+          new IssueMessageSimplification(newMessage, getAttributeToPrior())
       );
     } else {
       return Optional.empty();
     }
   }
+
+  /**
+   * Determine if this issue should be attributed to the prior token.
+   *
+   * @return True if should be attributed to prior token. False otherwise.
+   */
+  public boolean getAttributeToPrior() {
+    return false;
+  }
+
 
   /**
    * Get the regex that should be matched against the error message for this strategy to apply.

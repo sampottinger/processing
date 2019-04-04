@@ -28,16 +28,17 @@ public class ProblemFactoryTest {
 
     editor = Mockito.mock(Editor.class);
     Mockito.when(editor.getLineStartOffset(3)).thenReturn(10);
+    Mockito.when(editor.getLineStopOffset(3)).thenReturn(12);
   }
 
   @Test
   public void buildWithEditor() {
-    Problem problem = ProblemFactory.build(pdePreprocessIssue, tabStarts, editor);
+    Problem problem = ProblemFactory.build(pdePreprocessIssue, tabStarts, 15, editor);
 
     Assert.assertEquals(3, problem.getLineNumber());
     Assert.assertEquals("test", problem.getMessage());
     Assert.assertEquals(10, problem.getStartOffset());
-    Assert.assertEquals(12, problem.getStopOffset());
+    Assert.assertEquals(11, problem.getStopOffset());
   }
 
   @Test

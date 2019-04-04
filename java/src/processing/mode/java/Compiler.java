@@ -132,7 +132,7 @@ public class Compiler {
 
       String line = null;
       while ((line = reader.readLine()) != null) {
-        //System.out.addEmptyLine("got line " + line);  // debug
+        //System.out.println("got line " + line);  // debug
 
         // get first line, which contains file name, line number,
         // and at least the first line of the error message

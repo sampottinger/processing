@@ -1,17 +1,16 @@
-package processing.mode.java.preproc.util.strategy;
+package processing.mode.java.preproc.issue.strategy;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import processing.mode.java.preproc.issue.IssueMessageSimplification;
-import processing.mode.java.preproc.issue.strategy.MissingVariableNameMessageSimplifierStrategy;
 
 import java.util.Optional;
 
 
 public class MissingVariableNameMessageSimplifierStrategyTest {
 
-  private processing.mode.java.preproc.issue.strategy.MissingVariableNameMessageSimplifierStrategy strategy;
+  private MissingVariableNameMessageSimplifierStrategy strategy;
 
   @Before
   public void setup() {
@@ -20,7 +19,7 @@ public class MissingVariableNameMessageSimplifierStrategyTest {
 
   @Test
   public void testPresent() {
-    Optional<IssueMessageSimplification> msg = strategy.simplify("char = '");
+    Optional<IssueMessageSimplification> msg = strategy.simplify("char = ';");
     Assert.assertTrue(msg.isPresent());
   }
 

@@ -1,17 +1,16 @@
-package processing.mode.java.preproc.util.strategy;
+package processing.mode.java.preproc.issue.strategy;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import processing.mode.java.preproc.issue.IssueMessageSimplification;
-import processing.mode.java.preproc.issue.strategy.MissingDoubleQuoteMessageSimplifierStrategy;
 
 import java.util.Optional;
 
 
 public class MissingDoubleQuoteMessageSimplifierStrategyTest {
 
-  private processing.mode.java.preproc.issue.strategy.MissingDoubleQuoteMessageSimplifierStrategy strategy;
+  private MissingDoubleQuoteMessageSimplifierStrategy strategy;
 
   @Before
   public void setup() {

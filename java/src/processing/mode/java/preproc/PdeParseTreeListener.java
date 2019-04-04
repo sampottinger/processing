@@ -203,7 +203,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
 
     RewriteResult headerResult = codeGen.writeHeader(rewriter, rewriteParams);
     edits.addAll(headerResult.getEdits());
-    lineOffset += headerResult.getLineOffset();
+    lineOffset = headerResult.getLineOffset();
 
     // footer
     TokenStream tokenStream = rewriter.getTokenStream();
@@ -212,7 +212,6 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
 
     RewriteResult footerResult = codeGen.writeFooter(rewriter, rewriteParams, length);
     edits.addAll(footerResult.getEdits());
-    lineOffset += footerResult.getLineOffset();
   }
 
   /**

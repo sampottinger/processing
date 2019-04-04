@@ -1,17 +1,16 @@
-package processing.mode.java.preproc.util.strategy;
+package processing.mode.java.preproc.issue.strategy;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import processing.mode.java.preproc.issue.IssueMessageSimplification;
-import processing.mode.java.preproc.issue.strategy.BadParamMessageSimplifierStrategy;
 
 import java.util.Optional;
 
 
 public class BadParamMessageSimplifierStrategyTest {
 
-  private processing.mode.java.preproc.issue.strategy.BadParamMessageSimplifierStrategy strategy;
+  private BadParamMessageSimplifierStrategy strategy;
 
   @Before
   public void setup() {

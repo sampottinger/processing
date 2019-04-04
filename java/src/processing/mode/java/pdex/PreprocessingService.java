@@ -68,7 +68,7 @@ import processing.mode.java.preproc.code.SyntaxUtil;
  */
 public class PreprocessingService {
 
-  private final static int TIMEOUT_MILLIS = 100;
+  private final static int TIMEOUT_MILLIS = 1000;
   private final static int BLOCKING_TIMEOUT_SECONDS = 3000;
 
   protected final JavaEditor editor;
@@ -405,13 +405,24 @@ public class PreprocessingService {
           new StringWriter(),
           result.scrubbedPdeCode
       );
-    } catch (PdePreprocessIssueException e) {
-      result.hasSyntaxErrors = true;
-      result.otherProblems.add(ProblemFactory.build(e.getIssue(), tabLineStarts, editor));
-      return result.build();
     } catch (SketchException e) {
       throw new RuntimeException("Unexpected sketch exception in preprocessing: " + e);
     }
+
+    if (preprocessorResult.getPreprocessIssues().size() > 0) {
+      final int endNumLines = numLines;
+
+      preprocessorResult.getPreprocessIssues().stream()
+          .map((x) -> ProblemFactory.build(x, tabLineStarts, endNumLines, editor))
+          .forEach(result.otherProblems::add);
+
+      result.hasSyntaxErrors = true;
+      return result.build();
+    }
+
+    // Save off the imports
+    programImports.addAll(preprocessorResult.getImportStatements());
+    result.programImports.addAll(preprocessorResult.getImportStatements());
 
     // Prepare transforms to convert pde code into parsable code
     TextTransform toParsable = new TextTransform(pdeStage);
@@ -452,6 +463,7 @@ public class PreprocessingService {
 
     // Create intermediate AST for advanced preprocessing
     //System.out.addEmptyLine(new String(parsableStage.toCharArray()));
+    //System.out.println(new String(parsableStage.toCharArray()));
     CompilationUnit parsableCU =
         makeAST(parser, parsableStage.toCharArray(), COMPILER_OPTIONS);
 
