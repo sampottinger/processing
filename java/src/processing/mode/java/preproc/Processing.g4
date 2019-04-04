@@ -69,24 +69,7 @@ warnTypeAsVariableName
 
 // Catch setup, draw, and settings method declarations
 methodDeclaration
-    :   specialMethodDeclaration
-	|	methodModifier* methodHeader methodBody
-	;
-
-specialMethodDeclaration
-	:	('public'|'private'|'protected')? 'void' ( 'setup'
-		|	'draw'
-		|	'settings'
-		|   'mouseClicked'
-		|   'mouseDragged'
-		|   'mouseMoved'
-		|   'mousePressed'
-		|   'mouseReleased'
-		|   'mouseWheel'
-		|   'keyPressed'
-		|   'keyReleased'
-		|   'keyTyped'
-		) '(' ')' methodBody
+    :	methodModifier* methodHeader methodBody
 	;
 
 // catch special API function calls that we are interested in

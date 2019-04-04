@@ -4,6 +4,8 @@ void setup() {
 
 void draw() {
     ellipse(50, 50, 10, 10);
+    Test t = new Test();
+    t.draw();
 }
 
 class Test {
