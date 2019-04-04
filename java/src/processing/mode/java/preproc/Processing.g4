@@ -74,7 +74,7 @@ methodDeclaration
 	;
 
 specialMethodDeclaration
-	:	'public'? 'void' ( 'setup'
+	:	('public'|'private'|'protected')? 'void' ( 'setup'
 		|	'draw'
 		|	'settings'
 		|   'mouseClicked'
