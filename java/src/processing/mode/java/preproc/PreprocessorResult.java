@@ -1,15 +1,12 @@
 package processing.mode.java.preproc;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import processing.app.SketchException;
 import processing.mode.java.pdex.ImportStatement;
 import processing.mode.java.pdex.TextTransform;
-import processing.mode.java.preproc.PdePreprocessor;
 import processing.mode.java.preproc.issue.PdePreprocessIssue;
 
 
@@ -20,7 +17,7 @@ public class PreprocessorResult {
 
   private final int headerOffset;
   private final String className;
-  private final List<String> extraImports;
+  private final List<String> importStatementsStr;
   private final List<ImportStatement> importStatements;
   private final PdePreprocessor.Mode programType;
   private final List<TextTransform.Edit> edits;
@@ -58,12 +55,12 @@ public class PreprocessorResult {
 
     headerOffset = newHeaderOffset;
     className = newClassName;
-    extraImports = Collections.unmodifiableList(new ArrayList<>(newExtraImports));
+    importStatementsStr = Collections.unmodifiableList(new ArrayList<>(newExtraImports));
     programType = newProgramType;
     edits = newEdits;
     preprocessIssues = new ArrayList<>();
 
-    importStatements = extraImports.stream()
+    importStatements = importStatementsStr.stream()
         .map(ImportStatement::parse)
         .collect(Collectors.toList());
   }
@@ -77,7 +74,7 @@ public class PreprocessorResult {
     preprocessIssues = Collections.unmodifiableList(newPreprocessIssues);
     headerOffset = 0;
     className = "unknown";
-    extraImports = new ArrayList<>();
+    importStatementsStr = new ArrayList<>();
     programType = PdePreprocessor.Mode.STATIC;
     edits = new ArrayList<>();
     importStatements = new ArrayList<>();
@@ -116,8 +113,8 @@ public class PreprocessorResult {
    *
    * @return Additional imports beyond the defaults and code folder.
    */
-  public List<String> getExtraImports() {
-    return extraImports;
+  public List<String> getImportStatementsStr() {
+    return importStatementsStr;
   }
 
   /**

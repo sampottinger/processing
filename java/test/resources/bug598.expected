@@ -42,10 +42,10 @@ private static Comparator<String> rotarapmoc = new Comparator<String>() {
   }
 };
 
-final <T> void printClass(T t) {
+final public <T> void printClass(T t) {
    println(t.getClass()); 
 }
-final List<String> sortem(final String... strings) {
+final public List<String> sortem(final String... strings) {
    Arrays.sort(strings,  rotarapmoc);
    return Arrays.asList(strings);
 }

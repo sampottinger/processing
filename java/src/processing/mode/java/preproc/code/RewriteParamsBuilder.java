@@ -25,6 +25,7 @@ public class RewriteParamsBuilder {
   private Optional<String> sketchHeight;
   private Optional<String> sketchRenderer;
   private Optional<Boolean> isSizeValidInGlobal;
+  private Optional<Boolean> isSizeFullscreen;
 
   private ArrayList<String> coreImports;
   private ArrayList<String> defaultImports;
@@ -54,6 +55,7 @@ public class RewriteParamsBuilder {
     sketchHeight = Optional.empty();
     sketchRenderer = Optional.empty();
     isSizeValidInGlobal = Optional.empty();
+    isSizeFullscreen = Optional.empty();
   }
 
   /**
@@ -150,6 +152,15 @@ public class RewriteParamsBuilder {
   }
 
   /**
+   * Specify if running in fullscreen.
+   *
+   * @param newIsSizeFullscreen Flag indicating if running in fullscreen.
+   */
+  public void setIsSizeFullscreen(boolean newIsSizeFullscreen) {
+    isSizeFullscreen = Optional.of(newIsSizeFullscreen);
+  }
+
+  /**
    * Add imports required for processing to function.
    *
    * @param newImports The set of imports to include that are required for processing.
@@ -219,6 +230,10 @@ public class RewriteParamsBuilder {
       throw new RuntimeException("Expected isSizeValidInGlobal to be set");
     }
 
+    if (isSizeFullscreen.isEmpty()) {
+      throw new RuntimeException("Expected isSizeFullscreen to be set");
+    }
+
     return new RewriteParams(
         version,
         sketchName.get(),
@@ -234,7 +249,8 @@ public class RewriteParamsBuilder {
         sketchWidth,
         sketchHeight,
         sketchRenderer,
-        isSizeValidInGlobal.get()
+        isSizeValidInGlobal.get(),
+        isSizeFullscreen.get()
     );
   }
 }

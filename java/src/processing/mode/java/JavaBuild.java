@@ -44,7 +44,6 @@ import processing.core.PConstants;
 import processing.data.StringList;
 import processing.data.XML;
 import processing.mode.java.pdex.util.ProblemFactory;
-import processing.mode.java.preproc.issue.PdePreprocessIssueException;
 import processing.mode.java.preproc.PdePreprocessor;
 import processing.mode.java.preproc.PreprocessorResult;
 
@@ -280,7 +279,7 @@ public class JavaBuild {
       javaLibraryPath += File.pathSeparator + core.getNativePath();
     }
 
-    for (String item : result.getExtraImports()) {
+    for (String item : result.getImportStatementsStr()) {
       // remove things up to the last dot
       int dot = item.lastIndexOf('.');
       // http://dev.processing.org/bugs/show_bug.cgi?id=1145

@@ -27,6 +27,7 @@ public class RewriteParams {
   private final Optional<String> sketchHeight;
   private final Optional<String> sketchRenderer;
   private final boolean isSizeValidInGlobal;
+  private final boolean isSizeFullscreen;
 
   /**
    * Create a new set of parameters.
@@ -49,6 +50,7 @@ public class RewriteParams {
    * @param newSketchRenderer The renderer like P2D.
    * @param newIsSizeValidInGlobal Flag indicating if a call to size is valid when that call to size
    *    is made from sketch global context.
+   * @param newSizeIsFullscreen Indicate if in fullscreen mode.
    */
   public RewriteParams(String newVersion, String newSketchName, boolean newIsTested,
                        TokenStreamRewriter newRewriter, PdePreprocessor.Mode newMode,
@@ -56,7 +58,7 @@ public class RewriteParams {
                        List<String> newDefaultImports, List<String> newCodeFolderImports,
                        List<String> newFoundImports, Optional<String> newSketchWidth,
                        Optional<String> newSketchHeight, Optional<String> newSketchRenderer,
-                       boolean newIsSizeValidInGlobal) {
+                       boolean newIsSizeValidInGlobal, boolean newSizeIsFullscreen) {
 
     version = newVersion;
     sketchName = newSketchName;
@@ -73,6 +75,7 @@ public class RewriteParams {
     sketchHeight = newSketchHeight;
     sketchRenderer = newSketchRenderer;
     isSizeValidInGlobal = newIsSizeValidInGlobal;
+    isSizeFullscreen = newSizeIsFullscreen;
   }
 
   /**
@@ -211,6 +214,15 @@ public class RewriteParams {
    */
   public boolean getIsSizeValidInGlobal() {
     return isSizeValidInGlobal;
+  }
+
+  /**
+   * Determine if running in fullscreen.
+   *
+   * @return Flag indicating if in running in fullscreen.
+   */
+  public boolean getIsSizeFullscreen() {
+    return isSizeFullscreen;
   }
 
 }
