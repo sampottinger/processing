@@ -245,19 +245,30 @@ public class RewriterCodeGenerator {
       return;
     }
 
-    if (params.getSketchWidth().isEmpty() || params.getSketchHeight().isEmpty()) {
-      return;
-    }
-
-    StringJoiner argJoiner = new StringJoiner(",");
-    argJoiner.add(params.getSketchWidth().get());
-    argJoiner.add(params.getSketchHeight().get());
-    if (params.getSketchRenderer().isPresent()) {
-      argJoiner.add(params.getSketchRenderer().get());
-    }
-
     String settingsOuterTemplate = indent1 + "public void settings() { %s }";
-    String settingsInner = String.format("size(%s);", argJoiner.toString());
+
+    String settingsInner;
+    if (params.getIsSizeFullscreen()) {
+      String fullscreenInner = params.getSketchRenderer().orElse("");
+      settingsInner = String.format("fullScreen(%s);", fullscreenInner);
+    } else {
+
+      if (params.getSketchWidth().isEmpty() || params.getSketchHeight().isEmpty()) {
+        return;
+      }
+
+      StringJoiner argJoiner = new StringJoiner(",");
+      argJoiner.add(params.getSketchWidth().get());
+      argJoiner.add(params.getSketchHeight().get());
+
+      if (params.getSketchRenderer().isPresent()) {
+        argJoiner.add(params.getSketchRenderer().get());
+      }
+
+      settingsInner = String.format("size(%s);", argJoiner.toString());
+    }
+
+
     String newCode = String.format(settingsOuterTemplate, settingsInner);
 
     classBodyWriter.addEmptyLine();

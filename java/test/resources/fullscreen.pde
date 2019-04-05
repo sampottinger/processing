@@ -1,8 +1,3 @@
-void setup() {
-    fullscreen(FX2D);
-}
-
-@Override void draw() {
-    ellipse(50, 50, 10, 10);
-}
+fullScreen(FX2D);
+ellipse(50, 50, 10, 10);
 

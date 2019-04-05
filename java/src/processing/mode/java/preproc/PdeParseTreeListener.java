@@ -21,8 +21,6 @@
 
 package processing.mode.java.preproc;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.*;
 
 import org.antlr.v4.runtime.*;
@@ -49,7 +47,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
 
   private final static String VERSION_STR = "3.0.0";
   private static final String SIZE_METHOD_NAME = "size";
-  private static final String FULLSCREEN_METHOD_NAME = "fullscreen";
+  private static final String FULLSCREEN_METHOD_NAME = "fullScreen";
   private final int tabSize;
 
   private int headerOffset;
@@ -73,7 +71,8 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
   private String sketchHeight;
   private String sketchRenderer;
 
-  private boolean isSizeValidInGlobal;
+  private boolean sizeRequiresRewrite = false;
+  private boolean sizeIsFullscreen = false;
 
   /**
    * Create a new listener.
@@ -300,31 +299,27 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
       isInSetup = false;
     }
 
-    isSizeValidInGlobal = false;
+    sizeRequiresRewrite = false;
 
     ParseTree argsContext = ctx.getChild(2);
-    boolean hasArgs = argsContext instanceof ProcessingParser.ArgumentListContext;
-    if (!hasArgs) {
-      return; // Try to handle this as a regular call
-    }
-    
-    boolean isSize = ctx.getChild(0).getText().equals("size");
-    boolean isFullscreen = ctx.getChild(0).getText().equals("fullscreen");
 
-    if (hasArgs && (isInGlobal || isInSetup)) {
-      isSizeValidInGlobal = true;
+    boolean isSize = ctx.getChild(0).getText().equals(SIZE_METHOD_NAME);
+    boolean isFullscreen = ctx.getChild(0).getText().equals(FULLSCREEN_METHOD_NAME);
 
-      if (isSize) {
+    if (isInGlobal || isInSetup) {
+      sizeRequiresRewrite = true;
+
+      if (isSize && argsContext.getChildCount() > 0) {
         sketchWidth = argsContext.getChild(0).getText();
         if (PApplet.parseInt(sketchWidth, -1) == -1 &&
             !sketchWidth.equals("displayWidth")) {
-          isSizeValidInGlobal = false;
+          sizeRequiresRewrite = false;
         }
 
         sketchHeight = argsContext.getChild(2).getText();
         if (PApplet.parseInt(sketchHeight, -1) == -1 &&
             !sketchHeight.equals("displayHeight")) {
-          isSizeValidInGlobal = false;
+          sizeRequiresRewrite = false;
         }
 
         if (argsContext.getChildCount() > 4) {
@@ -334,12 +329,17 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
               sketchRenderer.equals("OPENGL") ||
               sketchRenderer.equals("JAVA2D") ||
               sketchRenderer.equals("FX2D"))) {
-            isSizeValidInGlobal = false;
+            sizeRequiresRewrite = false;
           }
         }
-      } else if (isFullscreen) {
+      }
+
+      if (isFullscreen) {
         sketchWidth = "displayWidth";
         sketchWidth = "displayHeight";
+
+        sizeRequiresRewrite = true;
+        sizeIsFullscreen = true;
 
         if (argsContext.getChildCount() > 0) {
           sketchRenderer = argsContext.getChild(0).getText();
@@ -348,26 +348,23 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
               sketchRenderer.equals("OPENGL") ||
               sketchRenderer.equals("JAVA2D") ||
               sketchRenderer.equals("FX2D"))) {
-            isSizeValidInGlobal = false;
+            sizeRequiresRewrite = false;
           }
         }
-      } else {
-        throw new RuntimeException("Unexpected method call to set sketch size.");
       }
+    }
 
-      if (isSizeValidInGlobal) {
-        // TODO: uncomment if size is supposed to be removed from setup()
+    if (sizeRequiresRewrite) {
+      // TODO: uncomment if size is supposed to be removed from setup()
 
-        createDelete(ctx.start, ctx.stop);
+      createDelete(ctx.start, ctx.stop);
 
-        createInsertBefore(
-            ctx.start,
-            "/* size commented out by preprocessor"
-        );
+      createInsertBefore(
+          ctx.start,
+          "/* size commented out by preprocessor"
+      );
 
-        createInsertAfter(ctx.stop, " */");
-      }
-
+      createInsertAfter(ctx.stop, " */");
     }
   }
 
@@ -668,7 +665,8 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     builder.setSketchWidth(sketchWidth);
     builder.setSketchHeight(sketchHeight);
     builder.setSketchRenderer(sketchRenderer);
-    builder.setIsSizeValidInGlobal(isSizeValidInGlobal);
+    builder.setIsSizeValidInGlobal(sizeRequiresRewrite);
+    builder.setIsSizeFullscreen(sizeIsFullscreen);
 
     builder.addCoreImports(coreImports);
     builder.addDefaultImports(defaultImports);

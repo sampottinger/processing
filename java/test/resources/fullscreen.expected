@@ -14,14 +14,14 @@ import java.io.IOException;
 
 public class fullscreen extends PApplet {
 
-public void setup() {
-    /* size commented out by preprocessor */;
-}
+    public void setup() {
+/* size commented out by preprocessor */;
+ellipse(50, 50, 10, 10);
 
-@Override public void draw() {
-    ellipse(50, 50, 10, 10);
-}
+        noLoop();
+    }
 
+    public void settings() { fullScreen(FX2D); }
 
     static public void main(String[] passedArgs) {
         String[] appletArgs = new String[] { "fullscreen" };
