@@ -187,7 +187,14 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
    * @return The result of the last preprocessing.
    */
   public PreprocessorResult getResult() {
-    return new PreprocessorResult(mode, lineOffset, sketchName, foundImports, edits);
+    List<String> allImports = new ArrayList<>();
+
+    allImports.addAll(coreImports);
+    allImports.addAll(defaultImports);
+    allImports.addAll(codeFolderImports);
+    allImports.addAll(foundImports);
+
+    return new PreprocessorResult(mode, lineOffset, sketchName, allImports, edits);
   }
 
   // --------------------------------------------------- listener impl
