@@ -359,12 +359,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
 
       createDelete(ctx.start, ctx.stop);
 
-      createInsertBefore(
-          ctx.start,
-          "/* size commented out by preprocessor"
-      );
-
-      createInsertAfter(ctx.stop, " */");
+      createInsertAfter(ctx.stop, "/* size commented out by preprocessor */");
     }
   }
 

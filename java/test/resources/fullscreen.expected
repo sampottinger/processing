@@ -16,7 +16,6 @@ public class fullscreen extends PApplet {
 
     public void setup() {
 /* size commented out by preprocessor */;
-ellipse(50, 50, 10, 10);
 
         noLoop();
     }
