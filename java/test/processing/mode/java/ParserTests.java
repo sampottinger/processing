@@ -345,4 +345,9 @@ public class ParserTests {
     expectGood("classinstatic", true);
   }
 
+  @Test
+  public void fullscreen() {
+    expectGood("fullscreen", true);
+  }
+
 }

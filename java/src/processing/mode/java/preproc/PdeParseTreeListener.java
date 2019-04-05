@@ -21,8 +21,6 @@
 
 package processing.mode.java.preproc;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.*;
 
 import org.antlr.v4.runtime.*;
@@ -49,6 +47,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
 
   private final static String VERSION_STR = "3.0.0";
   private static final String SIZE_METHOD_NAME = "size";
+  private static final String FULLSCREEN_METHOD_NAME = "fullScreen";
   private final int tabSize;
 
   private int headerOffset;
@@ -72,7 +71,8 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
   private String sketchHeight;
   private String sketchRenderer;
 
-  private boolean isSizeValidInGlobal;
+  private boolean sizeRequiresRewrite = false;
+  private boolean sizeIsFullscreen = false;
 
   /**
    * Create a new listener.
@@ -187,7 +187,14 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
    * @return The result of the last preprocessing.
    */
   public PreprocessorResult getResult() {
-    return new PreprocessorResult(mode, lineOffset, sketchName, foundImports, edits);
+    List<String> allImports = new ArrayList<>();
+
+    allImports.addAll(coreImports);
+    allImports.addAll(defaultImports);
+    allImports.addAll(codeFolderImports);
+    allImports.addAll(foundImports);
+
+    return new PreprocessorResult(mode, lineOffset, sketchName, allImports, edits);
   }
 
   // --------------------------------------------------- listener impl
@@ -239,7 +246,9 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
    * @param ctx The ANTLR context for the method call.
    */
   public void exitMethodInvocation(ProcessingParser.MethodInvocationContext ctx) {
-    if (SIZE_METHOD_NAME.equals(ctx.getChild(0).getText())) {
+    String methodName = ctx.getChild(0).getText();
+
+    if (SIZE_METHOD_NAME.equals(methodName) || FULLSCREEN_METHOD_NAME.equals(methodName)) {
       handleSizeCall(ctx);
     }
   }
@@ -251,14 +260,16 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
    */
   public void exitMethodInvocation_lfno_primary(
       ProcessingParser.MethodInvocation_lf_primaryContext ctx) {
+    
+    String methodName = ctx.getChild(0).getText();
 
-    if (SIZE_METHOD_NAME.equals(ctx.getChild(0).getText())) {
+    if (SIZE_METHOD_NAME.equals(methodName) || FULLSCREEN_METHOD_NAME.equals(methodName)) {
       handleSizeCall(ctx);
     }
   }
 
   /**
-   * Manage parsing out a size call.
+   * Manage parsing out a size or fullscreen call.
    *
    * @param ctx The context of the call.
    */
@@ -288,53 +299,67 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
       isInSetup = false;
     }
 
-    isSizeValidInGlobal = false;
+    sizeRequiresRewrite = false;
 
     ParseTree argsContext = ctx.getChild(2);
-    boolean hasArgs = argsContext instanceof ProcessingParser.ArgumentListContext;
-    if (!hasArgs) {
-      return; // Try to handle this as a regular call
-    }
 
-    if (hasArgs && (isInGlobal || isInSetup)) {
-      isSizeValidInGlobal = true;
+    boolean isSize = ctx.getChild(0).getText().equals(SIZE_METHOD_NAME);
+    boolean isFullscreen = ctx.getChild(0).getText().equals(FULLSCREEN_METHOD_NAME);
 
-      sketchWidth = argsContext.getChild(0).getText();
-      if (PApplet.parseInt(sketchWidth, -1) == -1 &&
-          !sketchWidth.equals("displayWidth")) {
-        isSizeValidInGlobal = false;
-      }
+    if (isInGlobal || isInSetup) {
+      sizeRequiresRewrite = true;
 
-      sketchHeight = argsContext.getChild(2).getText();
-      if (PApplet.parseInt(sketchHeight, -1) == -1 &&
-          !sketchHeight.equals("displayHeight")) {
-        isSizeValidInGlobal = false;
-      }
+      if (isSize && argsContext.getChildCount() > 0) {
+        sketchWidth = argsContext.getChild(0).getText();
+        if (PApplet.parseInt(sketchWidth, -1) == -1 &&
+            !sketchWidth.equals("displayWidth")) {
+          sizeRequiresRewrite = false;
+        }
 
-      if (argsContext.getChildCount() > 4) {
-        sketchRenderer = argsContext.getChild(4).getText();
-        if (!(sketchRenderer.equals("P2D") ||
+        sketchHeight = argsContext.getChild(2).getText();
+        if (PApplet.parseInt(sketchHeight, -1) == -1 &&
+            !sketchHeight.equals("displayHeight")) {
+          sizeRequiresRewrite = false;
+        }
+
+        if (argsContext.getChildCount() > 4) {
+          sketchRenderer = argsContext.getChild(4).getText();
+          if (!(sketchRenderer.equals("P2D") ||
               sketchRenderer.equals("P3D") ||
               sketchRenderer.equals("OPENGL") ||
               sketchRenderer.equals("JAVA2D") ||
               sketchRenderer.equals("FX2D"))) {
-          isSizeValidInGlobal = false;
+            sizeRequiresRewrite = false;
+          }
         }
       }
 
-      if (isSizeValidInGlobal) {
-        // TODO: uncomment if size is supposed to be removed from setup()
+      if (isFullscreen) {
+        sketchWidth = "displayWidth";
+        sketchWidth = "displayHeight";
 
-        createDelete(ctx.start, ctx.stop);
+        sizeRequiresRewrite = true;
+        sizeIsFullscreen = true;
 
-        createInsertBefore(
-            ctx.start,
-            "/* size commented out by preprocessor"
-        );
-
-        createInsertAfter(ctx.stop, " */");
+        if (argsContext.getChildCount() > 0) {
+          sketchRenderer = argsContext.getChild(0).getText();
+          if (!(sketchRenderer.equals("P2D") ||
+              sketchRenderer.equals("P3D") ||
+              sketchRenderer.equals("OPENGL") ||
+              sketchRenderer.equals("JAVA2D") ||
+              sketchRenderer.equals("FX2D"))) {
+            sizeRequiresRewrite = false;
+          }
+        }
       }
+    }
 
+    if (sizeRequiresRewrite) {
+      // TODO: uncomment if size is supposed to be removed from setup()
+
+      createDelete(ctx.start, ctx.stop);
+
+      createInsertAfter(ctx.stop, "/* size commented out by preprocessor */");
     }
   }
 
@@ -483,18 +508,33 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
         clsDclCtx.getChild(2).getText().equals("extends") &&
         clsDclCtx.getChild(3).getText().endsWith("PApplet"));
 
-    boolean voidType = ctx.getChild(0).getChild(0).getText().equals("void");
+    boolean hasVisibilityModifier = false;
 
-    // not the first, so no mod before
-    ParseTree modifierMaybe = ctx.getChild(0);
-    boolean hasModifier = modifierMaybe instanceof ProcessingParser.MethodModifierContext;
+    int numChildren = ctx.getChildCount();
+    ParseTree methodHeader = null;
+    for (int i = 0; i < numChildren; i++) {
+      boolean childIsVisibility;
 
-    if (!hasModifier) {
-      createInsertBefore(memCtx.start, "public ");
+      ParseTree child = ctx.getChild(i);
+      String childText = child.getText();
+
+      childIsVisibility = childText.equals("public");
+      childIsVisibility = childIsVisibility || childText.equals("private");
+      childIsVisibility = childIsVisibility || childText.equals("protected");
+
+      hasVisibilityModifier = hasVisibilityModifier || childIsVisibility;
+
+      if (child instanceof ProcessingParser.MethodHeaderContext) {
+        methodHeader = child;
+      }
     }
 
-    if ((inSketchContext || inPAppletContext) && 
-        hasModifier && 
+    if (!hasVisibilityModifier && methodHeader != null) {
+      createInsertBefore(methodHeader.getSourceInterval().a, "public ");
+    }
+
+    if ((inSketchContext || inPAppletContext) &&
+        hasVisibilityModifier &&
         ctx.getChild(1).getText().equals("main")) {
       foundMain = true;
     }
@@ -620,7 +660,8 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     builder.setSketchWidth(sketchWidth);
     builder.setSketchHeight(sketchHeight);
     builder.setSketchRenderer(sketchRenderer);
-    builder.setIsSizeValidInGlobal(isSizeValidInGlobal);
+    builder.setIsSizeValidInGlobal(sizeRequiresRewrite);
+    builder.setIsSizeFullscreen(sizeIsFullscreen);
 
     builder.addCoreImports(coreImports);
     builder.addDefaultImports(defaultImports);
