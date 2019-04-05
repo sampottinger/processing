@@ -28,7 +28,7 @@ list.add("bar");
 list.add("baz");
 }
 
-static <T> int binarySearch(List<? extends Comparable<? super T>> list, T
+static public <T> int binarySearch(List<? extends Comparable<? super T>> list, T
 key) {
 return 0;
 }
