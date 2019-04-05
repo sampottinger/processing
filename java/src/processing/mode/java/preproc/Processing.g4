@@ -33,6 +33,7 @@ javaProcessingSketch
 nonClassBlockStatement
 	:	localVariableDeclarationStatement
 	|	statement
+	|   typeDeclaration
 	;
 
 staticProcessingSketch

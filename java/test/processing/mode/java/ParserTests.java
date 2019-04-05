@@ -340,4 +340,9 @@ public class ParserTests {
     expectGood("specialmethodsprivate", true);
   }
 
+  @Test
+  public void classInStatic() {
+    expectGood("classinstatic", true);
+  }
+
 }

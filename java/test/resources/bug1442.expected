@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class bug1442 extends PApplet {
 
-float a() {
+public float a() {
 	return 1.0f;
 }
 

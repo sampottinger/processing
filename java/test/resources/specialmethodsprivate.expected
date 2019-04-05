@@ -15,7 +15,7 @@ import java.io.IOException;
 public class specialmethodsprivate extends PApplet {
 
 public void setup() {
-    /* commented out by preprocessor: size(100, 100) */;
+    /* size commented out by preprocessor */;
 }
 
 public void draw() {

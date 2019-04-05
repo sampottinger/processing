@@ -234,7 +234,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
   }*/
 
   /**
-   * Endpoint for ANTLR to call when finished parsing a size function call.
+   * Endpoint for ANTLR to call when finished parsing a method invocatino.
    *
    * @param ctx The ANTLR context for the method call.
    */
@@ -244,12 +244,24 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     }
   }
 
-  public void exitMethodInvocation_lfno_primary(ProcessingParser.MethodInvocation_lf_primaryContext ctx) {
+  /**
+   * Endpoing for ANTLR when finishing a left recursive method invocation.
+   *
+   * @param ctx The ANTLR context for the method call.
+   */
+  public void exitMethodInvocation_lfno_primary(
+      ProcessingParser.MethodInvocation_lf_primaryContext ctx) {
+
     if (SIZE_METHOD_NAME.equals(ctx.getChild(0).getText())) {
       handleSizeCall(ctx);
     }
   }
 
+  /**
+   * Manage parsing out a size call.
+   *
+   * @param ctx The context of the call.
+   */
   private void handleSizeCall(ParserRuleContext ctx) {
     // this tree climbing could be avoided if grammar is
     // adjusted to force context of size()
@@ -312,9 +324,12 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
 
       if (isSizeValidInGlobal) {
         // TODO: uncomment if size is supposed to be removed from setup()
+
+        createDelete(ctx.start, ctx.stop);
+
         createInsertBefore(
             ctx.start,
-            "/* commented out by preprocessor: "
+            "/* size commented out by preprocessor"
         );
 
         createInsertAfter(ctx.stop, " */");
@@ -323,6 +338,12 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     }
   }
 
+  /**
+   * Determine if a method declaration is for setup.
+   *
+   * @param methodDeclaration The method declaration to parse.
+   * @return True if setup and false otherwise.
+   */
   private boolean isMethodSetup(ParserRuleContext methodDeclaration) {
     ParseTree methodHeader = null;
 
@@ -465,9 +486,10 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     boolean voidType = ctx.getChild(0).getChild(0).getText().equals("void");
 
     // not the first, so no mod before
-    boolean hasModifier = clsBdyDclCtx.getChild(0) != memCtx;
+    ParseTree modifierMaybe = ctx.getChild(0);
+    boolean hasModifier = modifierMaybe instanceof ProcessingParser.MethodModifierContext;
 
-    if (!hasModifier && inPAppletContext && voidType) {
+    if (!hasModifier) {
       createInsertBefore(memCtx.start, "public ");
     }
 

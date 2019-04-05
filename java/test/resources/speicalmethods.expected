@@ -17,7 +17,7 @@ public class speicalmethods extends PApplet {
 ArrayList<Integer> positions = new ArrayList<>();
 
 public void setup() {
-    /* commented out by preprocessor: size(100, 100) */;
+    /* size commented out by preprocessor */;
     positions.add(25);
     positions.add(50);
     positions.add(75);

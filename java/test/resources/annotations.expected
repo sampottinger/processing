@@ -19,7 +19,7 @@ public class annotations extends PApplet {
 
 
 public void setup() {
-    /* commented out by preprocessor: size(200,200) */;
+    /* size commented out by preprocessor */;
 }
 
 @Deprecated
