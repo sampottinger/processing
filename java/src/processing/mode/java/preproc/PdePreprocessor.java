@@ -109,7 +109,7 @@ public class PdePreprocessor {
     ParseTreeWalker treeWalker = new ParseTreeWalker();
     treeWalker.walk(listener, tree);
 
-    // Return resultant program
+    // Return resulting program
     String outputProgram = listener.getOutputProgram();
     PrintWriter outPrintWriter = new PrintWriter(outWriter);
     outPrintWriter.print(outputProgram);
