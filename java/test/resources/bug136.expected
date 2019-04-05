@@ -20,7 +20,7 @@ public class bug136 extends PApplet {
 java.util.List alist = Collections.synchronizedList(new ArrayList());
 
 public void setup() {
-/* commented out by preprocessor: size(400, 200) */;
+/* size commented out by preprocessor */;
 alist.add("hello");
 }
 

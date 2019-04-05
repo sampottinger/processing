@@ -324,9 +324,12 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
 
       if (isSizeValidInGlobal) {
         // TODO: uncomment if size is supposed to be removed from setup()
+
+        createDelete(ctx.start, ctx.stop);
+
         createInsertBefore(
             ctx.start,
-            "/* commented out by preprocessor: "
+            "/* size commented out by preprocessor"
         );
 
         createInsertAfter(ctx.stop, " */");
