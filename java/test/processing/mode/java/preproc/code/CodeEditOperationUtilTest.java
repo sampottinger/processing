@@ -91,6 +91,7 @@ public class CodeEditOperationUtilTest {
   public void createInsertBeforeLocation() {
     TextTransform.Edit edit = CodeEditOperationUtil.createInsertBefore(
         5,
+        5,
         "text",
         tokenStreamRewriter
     );

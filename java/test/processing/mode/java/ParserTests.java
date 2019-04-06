@@ -9,14 +9,23 @@ import static processing.mode.java.ProcessingTestUtil.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import processing.app.Platform;
 import processing.app.SketchException;
 import processing.app.exec.ProcessResult;
+import processing.mode.java.pdex.JdtCompilerUtil;
+import processing.mode.java.pdex.SourceUtils;
+import processing.mode.java.pdex.TextTransform;
 import processing.mode.java.preproc.PreprocessorResult;
 import processing.mode.java.preproc.issue.PdePreprocessIssueException;
 
@@ -68,8 +77,8 @@ public class ParserTests {
   static void expectCompilerException(final String id) {
     try {
       final String program = preprocess(id, res(id + ".pde"));
-      final ProcessResult compilerResult = COMPILER.compile(id, program);
-      if (compilerResult.succeeded()) {
+      boolean succeeded = compile(id, program);
+      if (succeeded) {
         fail("Expected to fail.");
       }
     } catch (Exception e) {
@@ -87,12 +96,11 @@ public class ParserTests {
   static void expectGood(final String id, boolean ignoreWhitespace) {
     try {
       final String program = preprocess(id, res(id + ".pde"));
-      final ProcessResult compilerResult = COMPILER.compile(id, program);
-      if (!compilerResult.succeeded()) {
+      boolean successful = compile(id, program);
+      if (successful) {
         System.err.println(program);
         System.err.println("----------------------------");
-        System.err.println(compilerResult.getStderr());
-        fail("Compilation failed with status " + compilerResult.getResult());
+        fail("Compilation failed.");
       }
 
       final File expectedFile = res(id + ".expected");
@@ -348,6 +356,19 @@ public class ParserTests {
   @Test
   public void fullscreen() {
     expectGood("fullscreen", true);
+  }
+
+  private static boolean compile(String id, String program) {
+    // Create compilable AST to get syntax problems
+    CompilationUnit compilableCU = JdtCompilerUtil.makeAST(
+        ASTParser.newParser(AST.JLS8),
+        program.toCharArray(),
+        JdtCompilerUtil.COMPILER_OPTIONS
+    );
+
+    // Get syntax problems from compilable AST
+    return Arrays.stream(compilableCU.getProblems())
+        .anyMatch(IProblem::isError);
   }
 
 }
