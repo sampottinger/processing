@@ -197,8 +197,8 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     allImports.addAll(foundImports);
 
     List<TextTransform.Edit> allEdits = new ArrayList<>();
-    allEdits.addAll(edits);
     allEdits.addAll(headerResult.getEdits());
+    allEdits.addAll(edits);
     allEdits.addAll(footerResult.getEdits());
 
     return new PreprocessorResult(mode, lineOffset, sketchName, allImports, allEdits);
