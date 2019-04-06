@@ -73,6 +73,7 @@ public class PrintWriterWithEditGen {
     if (before) {
       rewriteResultBuilder.addEdit(CodeEditOperationUtil.createInsertBefore(
           insertPoint,
+          insertPoint,
           newCode,
           writer
       ));
