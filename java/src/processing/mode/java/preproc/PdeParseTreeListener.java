@@ -73,6 +73,8 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
 
   private boolean sizeRequiresRewrite = false;
   private boolean sizeIsFullscreen = false;
+  private RewriteResult headerResult;
+  private RewriteResult footerResult;
 
   /**
    * Create a new listener.
@@ -194,7 +196,12 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     allImports.addAll(codeFolderImports);
     allImports.addAll(foundImports);
 
-    return new PreprocessorResult(mode, lineOffset, sketchName, allImports, edits);
+    List<TextTransform.Edit> allEdits = new ArrayList<>();
+    allEdits.addAll(edits);
+    allEdits.addAll(headerResult.getEdits());
+    allEdits.addAll(footerResult.getEdits());
+
+    return new PreprocessorResult(mode, lineOffset, sketchName, allImports, allEdits);
   }
 
   // --------------------------------------------------- listener impl
@@ -210,8 +217,8 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
 
     RewriterCodeGenerator codeGen = new RewriterCodeGenerator(tabSize);
 
-    RewriteResult headerResult = codeGen.writeHeader(rewriter, rewriteParams);
-    edits.addAll(headerResult.getEdits());
+    headerResult = codeGen.writeHeader(rewriter, rewriteParams);
+
     lineOffset = headerResult.getLineOffset();
 
     // footer
@@ -219,8 +226,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     int tokens = tokenStream.size();
     int length = tokenStream.get(tokens-1).getStopIndex();
 
-    RewriteResult footerResult = codeGen.writeFooter(rewriter, rewriteParams, length);
-    edits.addAll(footerResult.getEdits());
+    footerResult = codeGen.writeFooter(rewriter, rewriteParams, length);
   }
 
   /**
@@ -511,7 +517,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     boolean hasVisibilityModifier = false;
 
     int numChildren = ctx.getChildCount();
-    ParseTree methodHeader = null;
+    ProcessingParser.MethodHeaderContext methodHeader = null;
     for (int i = 0; i < numChildren; i++) {
       boolean childIsVisibility;
 
@@ -525,12 +531,12 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
       hasVisibilityModifier = hasVisibilityModifier || childIsVisibility;
 
       if (child instanceof ProcessingParser.MethodHeaderContext) {
-        methodHeader = child;
+        methodHeader = (ProcessingParser.MethodHeaderContext) child;
       }
     }
 
     if (!hasVisibilityModifier && methodHeader != null) {
-      createInsertBefore(methodHeader.getSourceInterval().a, "public ");
+      createInsertBefore(methodHeader.getStart(), "public ");
     }
 
     if ((inSketchContext || inPAppletContext) &&
@@ -607,11 +613,17 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
   /**
    * Insert text before a location in code.
    *
-   * @param location Character offset from start.
+   * @param locationToken Character offset from start.
+   * @param locationOffset
    * @param text Text to add.
    */
-  private void createInsertBefore(int location, String text) {
-    edits.add(CodeEditOperationUtil.createInsertBefore(location, text, rewriter));
+  private void createInsertBefore(int locationToken, int locationOffset, String text) {
+    edits.add(CodeEditOperationUtil.createInsertBefore(
+        locationToken,
+        locationOffset,
+        text,
+        rewriter
+    ));
   }
 
   /**

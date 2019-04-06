@@ -109,18 +109,19 @@ public class CodeEditOperationUtil {
   /**
    * Insert text before a position in code.
    *
-   * @param before The location before which to insert the text.
+   * @param before The location before which to insert the text in tokens.
+   * @param beforeOffset THe location before which to insert the text in chars.
    * @param text The text to insert.
    * @param rewriter The rewriter in which to immediately edit.
    * @return The {TextTransform.Edit} corresponding to this change.
    */
-  public static TextTransform.Edit createInsertBefore(int before, String text,
+  public static TextTransform.Edit createInsertBefore(int before, int beforeOffset, String text,
         TokenStreamRewriter rewriter) {
 
     rewriter.insertBefore(before, text);
 
     return TextTransform.Edit.insert(
-        before,
+        beforeOffset,
         text
     );
   }
