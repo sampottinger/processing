@@ -402,7 +402,9 @@ public class PreprocessingService {
       preprocessorResult = preProcessor.write(
           new StringWriter(),
           result.scrubbedPdeCode,
-          codeFolderImports
+          codeFolderImports.stream()
+              .map(ImportStatement::getFullSourceLine)
+              .collect(Collectors.toList())
       );
     } catch (SketchException e) {
       throw new RuntimeException("Unexpected sketch exception in preprocessing: " + e);

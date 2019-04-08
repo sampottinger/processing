@@ -5,6 +5,8 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -50,15 +52,15 @@ public class PdePreprocessor {
   }
 
   public PreprocessorResult write(Writer outWriter, String inProgram,
-                                  Iterable<ImportStatement> codeFolderPackages)
+                                  Iterable<String> codeFolderPackages)
                                     throws SketchException {
 
 
     // Determine inports
     ArrayList<String> codeFolderImports = new ArrayList<>();
     if (codeFolderPackages != null) {
-      for (ImportStatement item : codeFolderPackages) {
-        codeFolderImports.add(item.getFullSourceLine());
+      for (String item : codeFolderPackages) {
+        codeFolderImports.add(item);
       }
     }
 
