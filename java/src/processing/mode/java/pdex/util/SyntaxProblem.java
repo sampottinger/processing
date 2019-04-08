@@ -1,12 +1,12 @@
 package processing.mode.java.pdex.util;
 
-import processing.app.Problem;
+import processing.mode.java.pdex.JavaProblem;
 
 
 /**
  * Problem identifying a syntax error found in preprocessing.
  */
-public class SyntaxProblem implements Problem {
+public class SyntaxProblem extends JavaProblem  {
 
   private final int tabIndex;
   private final int lineNumber;
@@ -27,6 +27,8 @@ public class SyntaxProblem implements Problem {
    */
   public SyntaxProblem(int newTabIndex, int newLineNumber, String newMessage, int newStartOffset,
                        int newStopOffset) {
+
+    super(newMessage, JavaProblem.ERROR, newLineNumber, newLineNumber);
 
     tabIndex = newTabIndex;
     lineNumber = newLineNumber;
