@@ -5,6 +5,8 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -13,6 +15,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import processing.app.Preferences;
 import processing.app.SketchException;
+import processing.mode.java.pdex.ImportStatement;
 import processing.mode.java.preproc.issue.PdeIssueEmitter;
 import processing.mode.java.preproc.issue.PdePreprocessIssue;
 
@@ -52,12 +55,11 @@ public class PdePreprocessor {
                                   Iterable<String> codeFolderPackages)
                                     throws SketchException {
 
-
     // Determine inports
     ArrayList<String> codeFolderImports = new ArrayList<>();
     if (codeFolderPackages != null) {
       for (String item : codeFolderPackages) {
-        codeFolderImports.add(item + ".*");
+        codeFolderImports.add(item);
       }
     }
 

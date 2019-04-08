@@ -401,7 +401,10 @@ public class PreprocessingService {
     try {
       preprocessorResult = preProcessor.write(
           new StringWriter(),
-          result.scrubbedPdeCode
+          result.scrubbedPdeCode,
+          codeFolderImports.stream()
+              .map(ImportStatement::getFullSourceLine)
+              .collect(Collectors.toList())
       );
     } catch (SketchException e) {
       throw new RuntimeException("Unexpected sketch exception in preprocessing: " + e);
@@ -460,7 +463,7 @@ public class PreprocessingService {
     OffsetMapper parsableMapper = toParsable.getMapper();
 
     // Create intermediate AST for advanced preprocessing
-    //System.out.addEmptyLine(new String(parsableStage.toCharArray()));
+    //System.out.println(new String(parsableStage.toCharArray()));
     CompilationUnit parsableCU = JdtCompilerUtil.makeAST(
         parser,
         parsableStage.toCharArray(),
