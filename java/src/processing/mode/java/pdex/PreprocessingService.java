@@ -477,8 +477,8 @@ public class PreprocessingService {
     char[] compilableStageChars = compilableStage.toCharArray();
 
     // Create compilable AST to get syntax problems
-    //System.out.println(new String(compilableStageChars));
-    //System.out.println("-----");
+    System.out.println(new String(compilableStageChars));
+    System.out.println("-----");
     CompilationUnit compilableCU =
         JdtCompilerUtil.makeAST(parser, compilableStageChars, JdtCompilerUtil.COMPILER_OPTIONS);
 

@@ -140,7 +140,7 @@ hexColorLiteral
 // add color literal notations for
 // #ff5522
 HexColorLiteral
-	:	'#' HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit
+	:	'#' (HexDigit HexDigit)? HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit
 	;
 
 // catch floating point numbers in a parser rule
