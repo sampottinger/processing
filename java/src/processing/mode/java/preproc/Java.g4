@@ -1613,7 +1613,7 @@ BooleanLiteral
 // §3.10.4 Character Literals
 
 CharacterLiteral
-	:	'\'' SingleCharacter '\''
+	:	'\'' SingleCharacter* '\'' // Kinda gross but letting JDT report errors on this
 	|	'\'' EscapeSequence '\''
 	;
 
