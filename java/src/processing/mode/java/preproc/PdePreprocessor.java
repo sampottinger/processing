@@ -6,8 +6,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
@@ -74,7 +73,7 @@ public class PdePreprocessor {
     // Lexer
     CommonTokenStream tokens;
     {
-      ANTLRInputStream antlrInStream = new ANTLRInputStream(inProgram);
+      CharStream antlrInStream = CharStreams.fromString(inProgram);
       ProcessingLexer lexer = new ProcessingLexer(antlrInStream);
       lexer.removeErrorListeners();
       tokens = new CommonTokenStream(lexer);
