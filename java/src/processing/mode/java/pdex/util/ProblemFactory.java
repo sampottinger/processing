@@ -73,6 +73,10 @@ public class ProblemFactory {
 
     String message = pdePreprocessIssue.getMsg();
 
+    if (col == 0) {
+      col = 1;
+    }
+
     return new SyntaxProblem(
         tab,
         localLine,

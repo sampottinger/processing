@@ -590,10 +590,17 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
    * @param ctx ANTLR context for the literal.
    */
   public void exitHexColorLiteral(ProcessingParser.HexColorLiteralContext ctx) {
-    createInsertBefore(
-        ctx.start,
-        ctx.getText().toUpperCase().replace("#","0xFF")
-    );
+    if (ctx.getText().length() == 7) {
+      createInsertBefore(
+          ctx.start,
+          ctx.getText().toUpperCase().replace("#","0xFF")
+      );
+    } else {
+      createInsertBefore(
+          ctx.start,
+          ctx.getText().toUpperCase().replace("#", "0x")
+      );
+    }
 
     createDelete(ctx.start, ctx.stop);
   }
