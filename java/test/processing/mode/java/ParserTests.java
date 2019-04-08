@@ -175,7 +175,7 @@ public class ParserTests {
 
   @Test
   public void bug196() {
-    expectRecognitionException("bug196", 5);
+    expectRecognitionException("bug196", 4);
   }
 
   @Test
@@ -290,7 +290,7 @@ public class ParserTests {
 
   @Test
   public void bug1532() {
-    expectRecognitionException("bug1532", 46);
+    expectRecognitionException("bug1532", 45);
   }
 
   @Test

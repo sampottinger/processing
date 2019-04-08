@@ -158,14 +158,14 @@ DecimalFloatingPointLiteral
 
 // hide but do not remove whitespace and comments
 
-WS  :  [ \t\r\n\u000C]+ -> channel(WHITESPACE)
+WS  :  [ \t\r\n\u000C]+ -> channel(1)
     ;
 
 COMMENT
-    :   '/*' .*? '*/' -> channel(COMMENTS)
+    :   '/*' .*? '*/' -> channel(2)
     ;
 
 LINE_COMMENT
-    :   '//' ~[\r\n]* -> channel(COMMENTS)
+    :   '//' ~[\r\n]* -> channel(2)
     ;
 
