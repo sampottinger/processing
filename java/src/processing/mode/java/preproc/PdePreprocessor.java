@@ -13,6 +13,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import processing.app.Preferences;
 import processing.app.SketchException;
+import processing.mode.java.pdex.ImportStatement;
 import processing.mode.java.preproc.issue.PdeIssueEmitter;
 import processing.mode.java.preproc.issue.PdePreprocessIssue;
 
@@ -49,15 +50,15 @@ public class PdePreprocessor {
   }
 
   public PreprocessorResult write(Writer outWriter, String inProgram,
-                                  Iterable<String> codeFolderPackages)
+                                  Iterable<ImportStatement> codeFolderPackages)
                                     throws SketchException {
 
 
     // Determine inports
     ArrayList<String> codeFolderImports = new ArrayList<>();
     if (codeFolderPackages != null) {
-      for (String item : codeFolderPackages) {
-        codeFolderImports.add(item + ".*");
+      for (ImportStatement item : codeFolderPackages) {
+        codeFolderImports.add(item.getFullSourceLine());
       }
     }
 
