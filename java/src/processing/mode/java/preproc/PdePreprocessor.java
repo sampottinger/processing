@@ -51,8 +51,7 @@ public class PdePreprocessor {
   public PreprocessorResult write(Writer outWriter, String inProgram,
                                   Iterable<String> codeFolderPackages)
                                     throws SketchException {
-
-
+    
     // Determine inports
     ArrayList<String> codeFolderImports = new ArrayList<>();
     if (codeFolderPackages != null) {
