@@ -83,7 +83,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
    * @param newSketchName The name of the sketch being traversed.
    * @param newTabSize Size of tab / indent.
    */
-  PdeParseTreeListener(BufferedTokenStream tokens, String newSketchName, int newTabSize) {
+  PdeParseTreeListener(TokenStream tokens, String newSketchName, int newTabSize) {
     rewriter = new TokenStreamRewriter(tokens);
     sketchName = newSketchName;
     tabSize = newTabSize;
