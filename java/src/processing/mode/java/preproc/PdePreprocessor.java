@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.atn.PredictionMode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
@@ -96,6 +97,9 @@ public class PdePreprocessor {
           (x) -> { preprocessIssues.add(x); },
           () -> finalInProgram
       ));
+      parser.getInterpreter().setPredictionMode(PredictionMode.LL);
+      parser.getInterpreter().tail_call_preserves_sll = false;
+      parser.getInterpreter().enable_global_context_dfa = true;
       parser.setBuildParseTree(true);
       tree = parser.processingSketch();
 

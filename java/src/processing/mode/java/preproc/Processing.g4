@@ -15,7 +15,7 @@ grammar Processing;
 }
 
 // import Java grammar
-import Java;
+import JavaParser;
 
 // main entry point, select sketch type
 processingSketch
@@ -48,7 +48,7 @@ activeProcessingSketch
 importDeclaration
     :   'import' importString ';'
     ;
-    
+
 // to easily intercept imports in usable format
 importString
     :   'static'? packageOrTypeName ('.' '*')?
