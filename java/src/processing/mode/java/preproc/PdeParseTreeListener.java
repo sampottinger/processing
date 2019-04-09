@@ -230,43 +230,11 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
   }
 
   /**
-   * Endpoint for ANTLR to call when finished parsing a special method declaration like setup.
-   *
-   * @param ctx The ANTLR context for the method declaration.
-   */
-  /*public void exitSpecialMethodDeclaration(ProcessingParser.SpecialMethodDeclarationContext ctx) {
-    String modifier = ctx.getChild(0).getText();
-
-    boolean hasPrefix = modifier.equals("public");
-    hasPrefix = hasPrefix || modifier.equals("private");
-    hasPrefix = hasPrefix || modifier.equals("protected");
-
-    if (!hasPrefix) {
-      createInsertBefore(ctx.start, "public ");
-    }
-  }*/
-
-  /**
    * Endpoint for ANTLR to call when finished parsing a method invocatino.
    *
    * @param ctx The ANTLR context for the method call.
    */
-  public void exitMethodInvocation(ProcessingParser.MethodInvocationContext ctx) {
-    String methodName = ctx.getChild(0).getText();
-
-    if (SIZE_METHOD_NAME.equals(methodName) || FULLSCREEN_METHOD_NAME.equals(methodName)) {
-      handleSizeCall(ctx);
-    }
-  }
-
-  /**
-   * Endpoing for ANTLR when finishing a left recursive method invocation.
-   *
-   * @param ctx The ANTLR context for the method call.
-   */
-  public void exitMethodInvocation_lfno_primary(
-      ProcessingParser.MethodInvocation_lf_primaryContext ctx) {
-    
+  public void exitMethodCall(ProcessingParser.MethodCallContext ctx) {
     String methodName = ctx.getChild(0).getText();
 
     if (SIZE_METHOD_NAME.equals(methodName) || FULLSCREEN_METHOD_NAME.equals(methodName)) {
@@ -280,16 +248,10 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
    * @param ctx The context of the call.
    */
   private void handleSizeCall(ParserRuleContext ctx) {
-    // this tree climbing could be avoided if grammar is
-    // adjusted to force context of size()
-
-    ParserRuleContext testCtx =
-      ctx.getParent() // statementExpression
-      .getParent() // expressionStatement
-      .getParent() // statementWithoutTrailingSubstatement
-      .getParent() // statement
+    ParserRuleContext testCtx = ctx.getParent()
       .getParent()
-      .getParent(); // block or staticProcessingSketch
+      .getParent()
+      .getParent();
 
     boolean isInGlobal =
       testCtx instanceof ProcessingParser.StaticProcessingSketchContext;
@@ -297,7 +259,6 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     boolean isInSetup;
     if (!isInGlobal) {
       ParserRuleContext methodDeclaration = testCtx.getParent()
-          .getParent()
           .getParent();
 
       isInSetup = isMethodSetup(methodDeclaration);
@@ -305,37 +266,37 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
       isInSetup = false;
     }
 
-    sizeRequiresRewrite = false;
-
     ParseTree argsContext = ctx.getChild(2);
+
+    boolean thisRequiresRewrite = false;
 
     boolean isSize = ctx.getChild(0).getText().equals(SIZE_METHOD_NAME);
     boolean isFullscreen = ctx.getChild(0).getText().equals(FULLSCREEN_METHOD_NAME);
 
     if (isInGlobal || isInSetup) {
-      sizeRequiresRewrite = true;
+      thisRequiresRewrite = true;
 
-      if (isSize && argsContext.getChildCount() > 0) {
+      if (isSize && argsContext.getChildCount() > 2) {
         sketchWidth = argsContext.getChild(0).getText();
         if (PApplet.parseInt(sketchWidth, -1) == -1 &&
             !sketchWidth.equals("displayWidth")) {
-          sizeRequiresRewrite = false;
+          thisRequiresRewrite = false;
         }
 
         sketchHeight = argsContext.getChild(2).getText();
         if (PApplet.parseInt(sketchHeight, -1) == -1 &&
             !sketchHeight.equals("displayHeight")) {
-          sizeRequiresRewrite = false;
+          thisRequiresRewrite = false;
         }
 
-        if (argsContext.getChildCount() > 4) {
+        if (argsContext.getChildCount() > 3) {
           sketchRenderer = argsContext.getChild(4).getText();
           if (!(sketchRenderer.equals("P2D") ||
               sketchRenderer.equals("P3D") ||
               sketchRenderer.equals("OPENGL") ||
               sketchRenderer.equals("JAVA2D") ||
               sketchRenderer.equals("FX2D"))) {
-            sizeRequiresRewrite = false;
+            thisRequiresRewrite = false;
           }
         }
       }
@@ -344,7 +305,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
         sketchWidth = "displayWidth";
         sketchWidth = "displayHeight";
 
-        sizeRequiresRewrite = true;
+        thisRequiresRewrite = true;
         sizeIsFullscreen = true;
 
         if (argsContext.getChildCount() > 0) {
@@ -354,53 +315,27 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
               sketchRenderer.equals("OPENGL") ||
               sketchRenderer.equals("JAVA2D") ||
               sketchRenderer.equals("FX2D"))) {
-            sizeRequiresRewrite = false;
+            thisRequiresRewrite = false;
           }
         }
       }
     }
 
-    if (sizeRequiresRewrite) {
-      // TODO: uncomment if size is supposed to be removed from setup()
-
+    if (thisRequiresRewrite) {
       createDelete(ctx.start, ctx.stop);
-
       createInsertAfter(ctx.stop, "/* size commented out by preprocessor */");
+      sizeRequiresRewrite = true;
     }
   }
 
   /**
    * Determine if a method declaration is for setup.
    *
-   * @param methodDeclaration The method declaration to parse.
+   * @param declaration The method declaration to parse.
    * @return True if setup and false otherwise.
    */
-  private boolean isMethodSetup(ParserRuleContext methodDeclaration) {
-    ParseTree methodHeader = null;
-
-    for (int i = 0; i < methodDeclaration.getChildCount(); i++) {
-      if (methodDeclaration.getChild(i) instanceof ProcessingParser.MethodHeaderContext) {
-        methodHeader = methodDeclaration.getChild(i);
-      }
-    }
-
-    if (methodHeader == null) {
-      return false;
-    }
-
-    ParseTree methodDeclarator = null;
-
-    for (int i = 0; i < methodHeader.getChildCount(); i++) {
-      if (methodHeader.getChild(i) instanceof ProcessingParser.MethodDeclaratorContext) {
-        methodDeclarator = methodHeader.getChild(i);
-      }
-    }
-
-    if (methodDeclarator == null) {
-      return false;
-    }
-
-    return methodDeclarator.getChild(0).getText().equals("setup");
+  private boolean isMethodSetup(ParserRuleContext declaration) {
+    return declaration.getChild(1).getText().equals("setup");
   }
 
   /**
@@ -414,24 +349,26 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
    * @param ctx ANTLR context for the import declaration.
    */
   public void exitImportDeclaration(ProcessingParser.ImportDeclarationContext ctx) {
-    createDelete(ctx.start, ctx.stop);
-  }
+    ProcessingParser.QualifiedNameContext startCtx = null;
 
-  /**
-   * Endpoint for ANTLR to call when finish parsing a single import declaration.
-   *
-   * <p>
-   *   Endpoint for ANTLR to call when finish parsing a single import declaration, saving a
-   *   qualified import name (with static modifier when present) for inclusion in the header.
-   * </p>
-   *
-   * @param ctx ANTLR context for the import declaration.
-   */
-  public void exitImportString(ProcessingParser.ImportStringContext ctx) {
+    for(int i = 0; i < ctx.getChildCount(); i++) {
+      ParseTree candidate = ctx.getChild(i);
+      if (candidate instanceof ProcessingParser.QualifiedNameContext) {
+        startCtx = (ProcessingParser.QualifiedNameContext) ctx.getChild(i);
+      }
+    }
+
+    if (startCtx == null) {
+      return;
+    }
+
     Interval interval =
-      new Interval(ctx.start.getStartIndex(), ctx.stop.getStopIndex());
+        new Interval(startCtx.start.getStartIndex(), ctx.stop.getStopIndex());
     String importString = ctx.start.getInputStream().getText(interval);
-    foundImports.add(importString);
+    String importStringNoSemi = importString.substring(0, importString.length() - 1);
+    foundImports.add(importStringNoSemi);
+
+    createDelete(ctx.start, ctx.stop);
   }
 
   /**
@@ -444,7 +381,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
    *
    * @param ctx ANTLR context for the literal.
    */
-  public void exitDecimalfloatingPointLiteral(ProcessingParser.DecimalfloatingPointLiteralContext ctx) {
+  public void exitFloatLiteral(ProcessingParser.FloatLiteralContext ctx) {
     String cTxt = ctx.getText().toLowerCase();
     if (!cTxt.endsWith("f") && !cTxt.endsWith("d")) {
       createInsertAfter(ctx.stop, "f");
@@ -503,25 +440,35 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     ParserRuleContext clsBdyCtx = clsBdyDclCtx.getParent();
     ParserRuleContext clsDclCtx = clsBdyCtx.getParent();
 
-    boolean inSketchContext = 
+    boolean inSketchContext =
       clsBdyCtx instanceof ProcessingParser.StaticProcessingSketchContext ||
       clsBdyCtx instanceof ProcessingParser.ActiveProcessingSketchContext;
 
     boolean inPAppletContext =
       inSketchContext || (
         clsDclCtx instanceof ProcessingParser.ClassDeclarationContext &&
-        clsDclCtx.getChildCount() >= 4 && 
+        clsDclCtx.getChildCount() >= 4 &&
         clsDclCtx.getChild(2).getText().equals("extends") &&
         clsDclCtx.getChild(3).getText().endsWith("PApplet"));
 
+    // Find modifiers
+    ParserRuleContext possibleModifiers = ctx;
+
+    while (!(possibleModifiers instanceof ProcessingParser.ClassBodyDeclarationContext)) {
+      possibleModifiers = possibleModifiers.getParent();
+    }
+
+    // Look for visibility modifiers and annotations
     boolean hasVisibilityModifier = false;
 
-    int numChildren = ctx.getChildCount();
-    ProcessingParser.MethodHeaderContext methodHeader = null;
+    int numChildren = possibleModifiers.getChildCount();
+
+    ParserRuleContext annoationPoint = null;
+
     for (int i = 0; i < numChildren; i++) {
       boolean childIsVisibility;
 
-      ParseTree child = ctx.getChild(i);
+      ParseTree child = possibleModifiers.getChild(i);
       String childText = child.getText();
 
       childIsVisibility = childText.equals("public");
@@ -530,20 +477,48 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
 
       hasVisibilityModifier = hasVisibilityModifier || childIsVisibility;
 
-      if (child instanceof ProcessingParser.MethodHeaderContext) {
-        methodHeader = (ProcessingParser.MethodHeaderContext) child;
+      boolean isModifier = child instanceof ProcessingParser.ModifierContext;
+      if (isModifier && isAnnoation((ProcessingParser.ModifierContext) child)) {
+        annoationPoint = (ParserRuleContext) child;
       }
     }
 
-    if (!hasVisibilityModifier && methodHeader != null) {
-      createInsertBefore(methodHeader.getStart(), "public ");
+    // Insert at start of method or after annoation
+    if (!hasVisibilityModifier) {
+      if (annoationPoint == null) {
+        createInsertBefore(possibleModifiers.getStart(), "public ");
+      } else {
+        createInsertAfter(annoationPoint.getStop(), "public ");
+      }
     }
 
+    // Check if this was main
     if ((inSketchContext || inPAppletContext) &&
         hasVisibilityModifier &&
         ctx.getChild(1).getText().equals("main")) {
       foundMain = true;
     }
+  }
+
+  /**
+   * Check if this contains an annation.
+   *
+   * @param child The modifier context to check.
+   * @return True if annotation. False otherwise
+   */
+  private boolean isAnnoation(ProcessingParser.ModifierContext context) {
+    if (context.getChildCount() == 0) {
+      return false;
+    }
+
+    ProcessingParser.ClassOrInterfaceModifierContext classModifierCtx;
+    if (!(context.getChild(0) instanceof ProcessingParser.ClassOrInterfaceModifierContext)) {
+      return false;
+    }
+
+    classModifierCtx = (ProcessingParser.ClassOrInterfaceModifierContext) context.getChild(0);
+
+    return classModifierCtx.getChild(0) instanceof ProcessingParser.AnnotationContext;
   }
 
   /**

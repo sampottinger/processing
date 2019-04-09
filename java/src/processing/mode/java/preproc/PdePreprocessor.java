@@ -97,9 +97,6 @@ public class PdePreprocessor {
           (x) -> { preprocessIssues.add(x); },
           () -> finalInProgram
       ));
-      parser.getInterpreter().setPredictionMode(PredictionMode.LL);
-      parser.getInterpreter().tail_call_preserves_sll = false;
-      parser.getInterpreter().enable_global_context_dfa = true;
       parser.setBuildParseTree(true);
       tree = parser.processingSketch();
 
