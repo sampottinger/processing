@@ -5,21 +5,21 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.atn.PredictionMode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import processing.app.Preferences;
 import processing.app.SketchException;
-import processing.mode.java.pdex.ImportStatement;
+import processing.mode.java.preproc.code.ImportUtil;
 import processing.mode.java.preproc.issue.PdeIssueEmitter;
 import processing.mode.java.preproc.issue.PdePreprocessIssue;
 
 
+/**
+ * Utility to preprocess sketches prior to comilation.
+ */
 public class PdePreprocessor {
 
   public static enum Mode {
@@ -33,24 +33,61 @@ public class PdePreprocessor {
 
   private final boolean isTested;
 
+  /**
+   * Create a new preprocessor.
+   *
+   * @param sketchName The name of the sketch.
+   */
   public PdePreprocessor(final String sketchName) {
     this(sketchName, Preferences.getInteger("editor.tabs.size"), false);
   }
 
+  /**
+   * Create a new preprocessor.
+   *
+   * @param sketchName The name of the sketch.
+   * @param tabSize The number of tabs.
+   */
   public PdePreprocessor(final String sketchName, final int tabSize) {
     this(sketchName, tabSize, false);
   }
 
+  /**
+   * Create a new preprocessor.
+   *
+   * @param sketchName The name of the sketch.
+   * @param tabSize The number of tabs.
+   * @param isTested Flag indicating if this is running in unit tests (true) or in production
+   *    (false).
+   */
   public PdePreprocessor(final String sketchName, final int tabSize, boolean isTested) {
     this.sketchName = sketchName;
     this.tabSize = tabSize;
     this.isTested = isTested;
   }
 
+  /**
+   * Create the preprocessed sketch code without any code folder packages.
+   *
+   * @param out The writer into which the preprocessed code should be written. This is
+   *    preferred over returning the full string result as this string may be large.
+   * @param program The sketch ("PDE") code.
+   * @return Information about the preprocessing operation.
+   */
   public PreprocessorResult write(final Writer out, String program) throws SketchException {
     return write(out, program, null);
   }
 
+  /**
+   * Create the preprocessed sketch code.
+   *
+   * @param outWriter The writer into which the preprocessed code should be written. This is
+   *    preferred over returning the full string result as this string may be large.
+   * @param inProgram The sketch ("PDE") code.
+   * @param codeFolderPackages The packages included by default for the user by virtue of those
+   *    packages being in the code folder.
+   * @return Information about the preprocessing operation.
+   */
   public PreprocessorResult write(Writer outWriter, String inProgram,
                                   Iterable<String> codeFolderPackages)
                                     throws SketchException {
@@ -86,8 +123,8 @@ public class PdePreprocessor {
     // Parser
     PdeParseTreeListener listener = createListener(tokens, sketchName);
     listener.setTested(isTested);
-    listener.setCoreImports(getCoreImports());
-    listener.setDefaultImports(getDefaultImports());
+    listener.setCoreImports(ImportUtil.getCoreImports());
+    listener.setDefaultImports(ImportUtil.getDefaultImports());
     listener.setCodeFolderImports(codeFolderImports);
 
     final String finalInProgram = inProgram;
@@ -121,14 +158,32 @@ public class PdePreprocessor {
     return listener.getResult();
   }
 
-  protected PdeParseTreeListener createListener(CommonTokenStream tokens, String sketchName) {
-    return new PdeParseTreeListener(tokens, sketchName, tabSize);
-  }
-
+  /**
+   * Determine if the main method was found during preprocessing.
+   *
+   * @return True if a main method was found. False otherwise.
+   */
   public boolean hasMain() {
     return hasMain;
   }
 
+  /**
+   * Factory function to create a {PdeParseTreeListener} for use in preprocessing
+   *
+   * @param tokens The token stream for which the listener needs to be created.
+   * @param sketchName The name of the sketch being preprocessed.
+   * @return Newly created listener suitable for use in this {PdePreprocessor}.
+   */
+  private PdeParseTreeListener createListener(CommonTokenStream tokens, String sketchName) {
+    return new PdeParseTreeListener(tokens, sketchName, tabSize);
+  }
+
+  /**
+   * Utility function to substitute non ascii characters for escaped unicode character sequences.
+   *
+   * @param program The program source in which to execute the replace.
+   * @return The program source after replacement.
+   */
   private static String substituteUnicode(String program) {
     // check for non-ascii chars (these will be/must be in unicode format)
     char p[] = program.toCharArray();
@@ -166,28 +221,4 @@ public class PdePreprocessor {
     return new String(p2, 0, index);
   }
 
-  public String[] getCoreImports() {
-    return new String[] {
-      "processing.core.*",
-      "processing.data.*",
-      "processing.event.*",
-      "processing.opengl.*"
-    };
-  }
-
-  public String[] getDefaultImports() {
-    // These may change in-between (if the prefs panel adds this option)
-    //String prefsLine = Preferences.get("preproc.imports");
-    //return PApplet.splitTokens(prefsLine, ", ");
-    return new String[] {
-      "java.util.HashMap",
-      "java.util.ArrayList",
-      "java.io.File",
-      "java.io.BufferedReader",
-      "java.io.PrintWriter",
-      "java.io.InputStream",
-      "java.io.OutputStream",
-      "java.io.IOException"
-    };
-  }
 }
