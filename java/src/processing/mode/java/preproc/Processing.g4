@@ -15,7 +15,7 @@ grammar Processing;
 }
 
 // import Java grammar
-import Java;
+import JavaParser;
 
 // main entry point, select sketch type
 processingSketch
@@ -29,15 +29,8 @@ javaProcessingSketch
     :   packageDeclaration? importDeclaration* typeDeclaration+ EOF
     ;
 
-// static mode, has statements
-nonClassBlockStatement
-	:	localVariableDeclarationStatement
-	|	statement
-	|   typeDeclaration
-	;
-
 staticProcessingSketch
-    :   (importDeclaration | nonClassBlockStatement)* EOF
+    :   (importDeclaration | blockStatement)* EOF
     ;
 
 // active mode, has function definitions
@@ -45,18 +38,9 @@ activeProcessingSketch
 	:	(importDeclaration | classBodyDeclaration)* EOF
 	;
 
-importDeclaration
-    :   'import' importString ';'
-    ;
-    
-// to easily intercept imports in usable format
-importString
-    :   'static'? packageOrTypeName ('.' '*')?
-    ;
-
 variableDeclaratorId
     :   warnTypeAsVariableName
-    |   Identifier ('[' ']')*
+    |   IDENTIFIER ('[' ']')*
     ;
 
 // bug #93
@@ -68,30 +52,13 @@ warnTypeAsVariableName
         }
     ;
 
-// Catch setup, draw, and settings method declarations
-methodDeclaration
-    :	methodModifier* methodHeader methodBody
-	;
-
 // catch special API function calls that we are interested in
-methodInvocation
-    :   functionWithPrimitiveTypeName
-	|	methodName '(' argumentList? ')'
-	|	typeName '.' typeArguments? Identifier '(' argumentList? ')'
-	|	expressionName '.' typeArguments? Identifier '(' argumentList? ')'
-	|	primary '.' typeArguments? Identifier '(' argumentList? ')'
-	|	'super' '.' typeArguments? Identifier '(' argumentList? ')'
-	|	typeName '.' 'super' '.' typeArguments? Identifier '(' argumentList? ')'
-	;
-
-methodInvocation_lfno_primary
-    :   functionWithPrimitiveTypeName
-	|	methodName '(' argumentList? ')'
-	|	typeName '.' typeArguments? Identifier '(' argumentList? ')'
-	|	expressionName '.' typeArguments? Identifier '(' argumentList? ')'
-	|	'super' '.' typeArguments? Identifier '(' argumentList? ')'
-	|	typeName '.' 'super' '.' typeArguments? Identifier '(' argumentList? ')'
-	;
+methodCall
+    : functionWithPrimitiveTypeName
+    | IDENTIFIER '(' expressionList? ')'
+    | THIS '(' expressionList? ')'
+    | SUPER '(' expressionList? ')'
+    ;
 
 // these are primitive type names plus "()"
 // "color" is a special Processing primitive (== int)
@@ -102,16 +69,19 @@ functionWithPrimitiveTypeName
 		|	'float'
 		|	'int'
         |   'color'
-		) '(' argumentList? ')'
+		) '(' expressionList? ')'
 	;
 
 // adding support for "color" primitive
-integralType
-	:	'byte'
-	|	'short'
-	|	'int'
-	|	'long'
-	|	'char'
+primitiveType
+	:   BOOLEAN
+    |   CHAR
+    |   BYTE
+    |   SHORT
+    |   INT
+    |   LONG
+    |   FLOAT
+    |   DOUBLE
 	|   colorPrimitiveType
 	;
 
@@ -121,14 +91,13 @@ colorPrimitiveType
 
 // added HexColorLiteral
 literal
-    :   hexColorLiteral
-    |	IntegerLiteral
-    |   decimalfloatingPointLiteral
-    |	FloatingPointLiteral
-    |   CharacterLiteral
-    |   StringLiteral
-    |   BooleanLiteral
-    |   'null'
+    : integerLiteral
+    | floatLiteral
+    | CHAR_LITERAL
+    | STRING_LITERAL
+    | BOOL_LITERAL
+    | NULL_LITERAL
+    | hexColorLiteral
     ;
 
 // As parser rule so this produces a separate listener
@@ -143,18 +112,6 @@ HexColorLiteral
 	:	'#' (HexDigit HexDigit)? HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit
 	;
 
-// catch floating point numbers in a parser rule
-decimalfloatingPointLiteral
-	:	DecimalFloatingPointLiteral
-	;
-
-// copy from Java.g4 where is is just a fragment
-DecimalFloatingPointLiteral
-    :   Digits '.' Digits? ExponentPart? FloatTypeSuffix?
-    |   '.' Digits ExponentPart? FloatTypeSuffix?
-    |   Digits ExponentPart FloatTypeSuffix?
-    |   Digits FloatTypeSuffix
-    ;
 
 // hide but do not remove whitespace and comments
 
@@ -168,4 +125,6 @@ COMMENT
 LINE_COMMENT
     :   '//' ~[\r\n]* -> channel(2)
     ;
+
+CHAR_LITERAL:       '\'' (~['\\\r\n] | EscapeSequence)* '\''; // A bit nasty but let JDT tackle invalid chars
 

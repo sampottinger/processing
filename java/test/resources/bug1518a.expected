@@ -30,10 +30,11 @@ list.add("baz");
 binarySearch(list, "bar");
 }
 
-static public <T> int binarySearch(List<? extends Comparable<? super T>> list, T
+public static <T> int binarySearch(List<? extends Comparable<? super T>> list, T
 key) {
 return 0;
 }
+
 
     static public void main(String[] passedArgs) {
         String[] appletArgs = new String[] { "bug1518a" };
