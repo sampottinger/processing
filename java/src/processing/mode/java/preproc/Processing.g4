@@ -126,3 +126,5 @@ LINE_COMMENT
     :   '//' ~[\r\n]* -> channel(2)
     ;
 
+CHAR_LITERAL:       '\'' (~['\\\r\n] | EscapeSequence)* '\''; // A bit nasty but let JDT tackle invalid chars
+
