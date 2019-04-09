@@ -52,6 +52,7 @@ import processing.mode.java.pdex.util.ProblemFactory;
 import processing.mode.java.pdex.util.runtime.RuntimePathBuilder;
 import processing.mode.java.preproc.PdePreprocessor;
 import processing.mode.java.preproc.PreprocessorResult;
+import processing.mode.java.preproc.code.ImportUtil;
 import processing.mode.java.preproc.code.SyntaxUtil;
 
 
@@ -403,7 +404,7 @@ public class PreprocessingService {
           new StringWriter(),
           result.scrubbedPdeCode,
           codeFolderImports.stream()
-              .map(ImportStatement::getFullSourceLine)
+              .map(ImportStatement::getFullClassName)
               .collect(Collectors.toList())
       );
     } catch (SketchException e) {
@@ -527,10 +528,10 @@ public class PreprocessingService {
   private static List<ImportStatement> buildCoreAndDefaultImports(PdePreprocessor p) {
     List<ImportStatement> result = new ArrayList<>();
 
-    for (String imp : p.getCoreImports()) {
+    for (String imp : ImportUtil.getCoreImports()) {
       result.add(ImportStatement.parse(imp));
     }
-    for (String imp : p.getDefaultImports()) {
+    for (String imp : ImportUtil.getDefaultImports()) {
       result.add(ImportStatement.parse(imp));
     }
 
