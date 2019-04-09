@@ -8,7 +8,7 @@ echo "=============================="
 echo "====   Preparing Windows  ===="
 echo "=============================="
 ant cross-build-windows
-zip -r all_os_release/$TIMESTAMP_windows.zip windows/work
+zip -r all_os_release/$(echo $TIMESTAMP)_windows.zip windows/work
 
 
 echo "=============================="
@@ -36,29 +36,29 @@ echo ">>> Locking keychain"
 security lock-keychain build.keychain
 
 echo ">>> Creating zip"
-zip -r all_os_release/$TIMESTAMP_macosx.zip macosx/work
+zip -r all_os_release/$(echo $TIMESTAMP)_macosx.zip macosx/work
 
 
 echo "=============================="
 echo "==== Preparing Linux x86  ===="
 echo "=============================="
 ant cross-build-linux-x64
-zip -r all_os_release/$TIMESTAMP_linux_x64.zip linux/work
+zip -r all_os_release/$(echo $TIMESTAMP)_linux_x64.zip linux/work
 
 
 echo "=============================="
 echo "==== Preparing Linux ARM  ===="
 echo "=============================="
 ant cross-build-linux-aarch64
-zip -r all_os_release/$TIMESTAMP_linux_aarch64.zip linux/work
+zip -r all_os_release/$(echo $TIMESTAMP)_linux_aarch64.zip linux/work
 
 
 echo "=============================="
 echo "====       Deploying      ===="
 echo "=============================="
-aws s3 cp all_os_release/$TIMESTAMP_windows.zip s3://processing-build-open-source/windows/$TIMESTAMP_windows.zip
-aws s3 cp all_os_release/$TIMESTAMP_macosx.zip s3://processing-build-open-source/macosx/$TIMESTAMP_macosx.zip
-aws s3 cp all_os_release/$TIMESTAMP_linux_x64.zip s3://processing-build-open-source/linux/$TIMESTAMP_linux_x64.zip
-aws s3 cp all_os_release/$TIMESTAMP_linux_aarch64.zip s3://processing-build-open-source/linux/$TIMESTAMP_linux_aarch64.zip
+aws s3 cp all_os_release/$(echo $TIMESTAMP)_windows.zip s3://processing-build-open-source/windows/$(echo $TIMESTAMP)_windows.zip
+aws s3 cp all_os_release/$(echo $TIMESTAMP)_macosx.zip s3://processing-build-open-source/macosx/$(echo $TIMESTAMP)_macosx.zip
+aws s3 cp all_os_release/$(echo $TIMESTAMP)_linux_x64.zip s3://processing-build-open-source/linux/$(echo $TIMESTAMP)_linux_x64.zip
+aws s3 cp all_os_release/$(echo $TIMESTAMP)_linux_aarch64.zip s3://processing-build-open-source/linux/$(echo $TIMESTAMP)_linux_aarch64.zip
 echo $TIMESTAMP > LATEST.txt
 aws s3 cp LATEST.txt s3://processing-build-open-source
