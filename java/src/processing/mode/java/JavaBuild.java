@@ -24,10 +24,7 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 package processing.mode.java;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -234,8 +231,11 @@ public class JavaBuild {
       final File java = new File(outputFolder, sketch.getName() + ".java");
       final PrintWriter stream = new PrintWriter(new FileWriter(java));
       try {
-        result = preprocessor.write(stream, bigCode.toString(), codeFolderPackages);
-        // TODO: need use of preprocess
+        result = preprocessor.write(
+            stream,
+            bigCode.toString(),
+            codeFolderPackages
+        );
       } finally {
         stream.close();
       }
@@ -336,7 +336,6 @@ public class JavaBuild {
     // it's appbundler?) adds Java/Classes to the path, which kills us.
     //String[] classPieces = PApplet.split(classPath, File.pathSeparator);
     // Nah, nevermind... we'll just create the @!#$! folder until they fix it.
-
 
     // 3. then loop over the code[] and save each .java file
 

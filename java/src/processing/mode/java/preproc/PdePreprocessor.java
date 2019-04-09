@@ -59,7 +59,7 @@ public class PdePreprocessor {
     ArrayList<String> codeFolderImports = new ArrayList<>();
     if (codeFolderPackages != null) {
       for (String item : codeFolderPackages) {
-        codeFolderImports.add(item);
+        codeFolderImports.add(item + ".*");
       }
     }
 

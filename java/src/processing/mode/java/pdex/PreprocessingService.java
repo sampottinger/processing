@@ -403,7 +403,7 @@ public class PreprocessingService {
           new StringWriter(),
           result.scrubbedPdeCode,
           codeFolderImports.stream()
-              .map(ImportStatement::getFullSourceLine)
+              .map(ImportStatement::getFullClassName)
               .collect(Collectors.toList())
       );
     } catch (SketchException e) {
