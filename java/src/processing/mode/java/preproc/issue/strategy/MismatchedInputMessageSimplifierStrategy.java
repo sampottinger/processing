@@ -55,8 +55,7 @@ public class MismatchedInputMessageSimplifierStrategy implements PreprocIssueMes
 
       return Optional.of(
           new IssueMessageSimplification(
-              newMessage,
-              true
+              newMessage
           )
       );
     } else {
