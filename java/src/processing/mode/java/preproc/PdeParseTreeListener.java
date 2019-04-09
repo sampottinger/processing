@@ -335,6 +335,9 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
    * @return True if setup and false otherwise.
    */
   private boolean isMethodSetup(ParserRuleContext declaration) {
+    if (declaration.getChildCount() < 2) {
+      return false;
+    }
     return declaration.getChild(1).getText().equals("setup");
   }
 
