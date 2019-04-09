@@ -1,7 +1,6 @@
 package processing.mode.java;
 
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static processing.mode.java.ProcessingTestUtil.*;
@@ -10,8 +9,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Optional;
 
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
@@ -20,12 +18,8 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import processing.app.Platform;
 import processing.app.SketchException;
-import processing.app.exec.ProcessResult;
 import processing.mode.java.pdex.JdtCompilerUtil;
-import processing.mode.java.pdex.SourceUtils;
-import processing.mode.java.pdex.TextTransform;
 import processing.mode.java.preproc.PreprocessorResult;
 import processing.mode.java.preproc.issue.PdePreprocessIssueException;
 
@@ -98,6 +92,7 @@ public class ParserTests {
       final String program = preprocess(id, res(id + ".pde"));
       boolean successful = compile(id, program);
       if (successful) {
+        System.err.println("----------------------------");
         System.err.println(program);
         System.err.println("----------------------------");
         fail("Compilation failed.");
@@ -143,7 +138,7 @@ public class ParserTests {
     }
   }
 
-  @Test
+  /*@Test
   public void bug4() {
     expectGood("bug4");
   }
@@ -205,7 +200,7 @@ public class ParserTests {
 
   @Test
   public void bug763() {
-    expectRunnerException("bug763", 8);
+    expectRunnerException("bug763", 7);
   }
 
   @Test
@@ -256,7 +251,7 @@ public class ParserTests {
   @Test
   public void bug1514b() {
     expectGood("bug1514b");
-  }
+  }*/
 
   @Test
   public void bug1515() {
@@ -290,7 +285,7 @@ public class ParserTests {
 
   @Test
   public void bug1532() {
-    expectRecognitionException("bug1532", 45);
+    expectRecognitionException("bug1532", 50);
   }
 
   @Test
@@ -359,6 +354,11 @@ public class ParserTests {
   }
 
   @Test
+  public void customMain() {
+    expectGood("custommain", true);
+  }
+
+  @Test
   public void charSpecial() {
     expectGood("charspecial", true);
   }
@@ -372,8 +372,22 @@ public class ParserTests {
     );
 
     // Get syntax problems from compilable AST
-    return Arrays.stream(compilableCU.getProblems())
-        .anyMatch(IProblem::isError);
+    Optional<IProblem> problem = Arrays.stream(compilableCU.getProblems())
+        .filter(IProblem::isError)
+        .findFirst();
+
+    if (problem.isPresent()) {
+      IProblem problemFound = problem.get();
+
+      System.err.println("Compilation issue: "
+          + problemFound.getMessage()
+          + "(" + problemFound.getSourceLineNumber() + ")"
+      );
+
+      return true;
+    } else {
+      return false;
+    }
   }
 
 }
