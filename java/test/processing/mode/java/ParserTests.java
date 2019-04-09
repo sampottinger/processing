@@ -358,6 +358,11 @@ public class ParserTests {
     expectGood("fullscreen", true);
   }
 
+  @Test
+  public void charSpecial() {
+    expectGood("charspecial", true);
+  }
+
   private static boolean compile(String id, String program) {
     // Create compilable AST to get syntax problems
     CompilationUnit compilableCU = JdtCompilerUtil.makeAST(
