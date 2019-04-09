@@ -38,6 +38,8 @@ public class DefaultErrorLocalStrSet {
     localizations.put("editor.status.missing.name", "Missing name near %s?");
     localizations.put("editor.status.missing.type", "Missing name or type near %s?");
     localizations.put("editor.status.missing.default", "Missing '%s'?");
+    localizations.put("editor.status.missing.right_curly_bracket", "Missing '}'");
+    localizations.put("editor.status.missing.left_curly_bracket", "Missing '{'");
   }
 
   /**

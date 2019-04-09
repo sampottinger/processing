@@ -67,6 +67,8 @@ public class PreprocessIssueMessageSimplifierFacade {
    */
   private PreprocessIssueMessageSimplifierFacade() {
     strategies = new ArrayList<>();
+    strategies.add(new MissingCurlyAtStartMessageSimplifierStrategy());
+    strategies.add(new MissingCurlyAtSemicolonMessageSimplifierStrategy());
     strategies.add(new MissingGenericTypeMessageSimplifierStrategy());
     strategies.add(new MissingIdentifierMessageSimplifierStrategy());
     strategies.add(new KnownMissingMessageSimplifierStrategy());
