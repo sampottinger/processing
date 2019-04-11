@@ -201,7 +201,15 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     allEdits.addAll(edits);
     allEdits.addAll(footerResult.getEdits());
 
-    return new PreprocessorResult(mode, lineOffset, sketchName, allImports, allEdits);
+    return new PreprocessorResult(
+        mode,
+        lineOffset,
+        sketchName,
+        allImports,
+        allEdits,
+        sketchWidth,
+        sketchHeight
+    );
   }
 
   // --------------------------------------------------- listener impl
