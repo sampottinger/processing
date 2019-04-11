@@ -34,7 +34,7 @@ public class ExtraneousInputMessageSimplifierStrategy
 
   @Override
   public Optional<IssueMessageSimplification> simplify(String message) {
-    if (message.toLowerCase().contSurfaceInfoains("extraneous")) {
+    if (message.toLowerCase().contains("extraneous")) {
       String innerMsg = MessageSimplifierUtil.getOffendingArea(message);
 
       String newMessageOuter = MessageSimplifierUtil.getLocalStr("editor.status.extraneous");
