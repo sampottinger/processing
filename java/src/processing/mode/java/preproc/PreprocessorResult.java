@@ -22,6 +22,8 @@ public class PreprocessorResult {
   private final PdePreprocessor.Mode programType;
   private final List<TextTransform.Edit> edits;
   private final List<PdePreprocessIssue> preprocessIssues;
+  private final String sketchWidth;
+  private final String sketchHeight;
 
   /**
    * Create a new PreprocessorResult indicating that there were issues in preprocessing.
@@ -45,9 +47,12 @@ public class PreprocessorResult {
    * @param newClassName The name of the class containing the sketch.
    * @param newExtraImports Additional imports beyond the defaults and code folder.
    * @param newEdits The edits made during preprocessing.
+   * @param newSketchWidth The width of the sketch in pixels or special value like displayWidth;
+   * @param newSketchHeight The height of the sketch in pixels or special value like displayWidth;
    */
   public PreprocessorResult(PdePreprocessor.Mode newProgramType, int newHeaderOffset,
-        String newClassName, List<String> newExtraImports, List<TextTransform.Edit> newEdits) {
+        String newClassName, List<String> newExtraImports, List<TextTransform.Edit> newEdits,
+        String newSketchWidth, String newSketchHeight) {
 
     if (newClassName == null) {
       throw new RuntimeException("Could not find main class");
@@ -63,6 +68,9 @@ public class PreprocessorResult {
     importStatements = importStatementsStr.stream()
         .map(ImportStatement::parse)
         .collect(Collectors.toList());
+
+    sketchWidth = newSketchWidth;
+    sketchHeight = newSketchHeight;
   }
 
   /**
@@ -78,6 +86,9 @@ public class PreprocessorResult {
     programType = PdePreprocessor.Mode.STATIC;
     edits = new ArrayList<>();
     importStatements = new ArrayList<>();
+
+    sketchWidth = null;
+    sketchHeight = null;
   }
 
   /**
@@ -142,5 +153,25 @@ public class PreprocessorResult {
    */
   public List<ImportStatement> getImportStatements() {
     return importStatements;
+  }
+
+  /**
+   * Get the user provided width of this sketch.
+   *
+   * @return The width of the sketch in pixels or special value like displayWidth or null if none
+   *    given.
+   */
+  public String getSketchWidth() {
+    return sketchWidth;
+  }
+
+  /**
+   * Get the user provided height of this sketch.
+   *
+   * @return The height of the sketch in pixels or special value like displayHeight or null if none
+   *    given.
+   */
+  public String getSketchHeight() {
+    return sketchWidth;
   }
 }
