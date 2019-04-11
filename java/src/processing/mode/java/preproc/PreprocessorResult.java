@@ -86,6 +86,9 @@ public class PreprocessorResult {
     programType = PdePreprocessor.Mode.STATIC;
     edits = new ArrayList<>();
     importStatements = new ArrayList<>();
+
+    sketchWidth = null;
+    sketchHeight = null;
   }
 
   /**
