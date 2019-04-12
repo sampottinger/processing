@@ -96,7 +96,15 @@ public class PdePreprocessor {
     ArrayList<String> codeFolderImports = new ArrayList<>();
     if (codeFolderPackages != null) {
       for (String item : codeFolderPackages) {
-        codeFolderImports.add(item + ".*");
+        String fullItem;
+
+        if (item.endsWith(".*")) {
+          fullItem = item;
+        } else {
+          fullItem = item + ".*";
+        }
+
+        codeFolderImports.add(fullItem);
       }
     }
 
