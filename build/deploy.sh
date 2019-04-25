@@ -62,3 +62,8 @@ aws s3 cp all_os_release/$(echo $TIMESTAMP)_linux_x64.zip s3://processing-build-
 aws s3 cp all_os_release/$(echo $TIMESTAMP)_linux_aarch64.zip s3://processing-build-open-source/linux/$(echo $TIMESTAMP)_linux_aarch64.zip
 echo $TIMESTAMP > LATEST.txt
 aws s3 cp LATEST.txt s3://processing-build-open-source
+
+
+echo "=============================="
+echo "====         Done         ===="
+echo "=============================="
