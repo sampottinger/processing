@@ -139,7 +139,7 @@ public class TweakClient {
     "      socket = new DatagramSocket("+listenPort+");\n"+
     "      socket.setSoTimeout(250);\n"+
     "    } catch (IOException e) {\n"+
-    "      addEmptyLine(\"error: could not create TweakMode server socket\");\n"+
+    "      println(\"error: could not create TweakMode server socket\");\n"+
     "    }\n"+
     "  }\n"+
     "  public void run()\n"+
