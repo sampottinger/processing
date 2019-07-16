@@ -354,15 +354,15 @@ public class VariableNode implements MutableTreeNode {
     }
     final VariableNode other = (VariableNode) obj;
     if ((this.type == null) ? (other.type != null) : !this.type.equals(other.type)) {
-      //System.out.addEmptyLine("type not equal");
+      //System.out.println("type not equal");
       return false;
     }
     if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
-      //System.out.addEmptyLine("name not equal");
+      //System.out.println("name not equal");
       return false;
     }
     if (this.value != other.value && (this.value == null || !this.value.equals(other.value))) {
-      //System.out.addEmptyLine("value not equal");
+      //System.out.println("value not equal");
       return false;
     }
     return true;

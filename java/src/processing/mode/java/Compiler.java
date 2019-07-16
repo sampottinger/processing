@@ -76,11 +76,11 @@ public class Compiler {
       "-nowarn", // we're not currently interested in warnings (works in ecj)
       "-d", build.getBinFolder().getAbsolutePath() // output the classes in the buildPath
     };
-    //PApplet.addEmptyLine(baseCommand);
+    //PApplet.println(baseCommand);
 
     String[] sourceFiles = Util.listFiles(build.getSrcFolder(), false, ".java");
     String[] command = PApplet.concat(baseCommand, sourceFiles);
-    //PApplet.addEmptyLine(command);
+    //PApplet.println(command);
 
     try {
       // Load errors into a local StringBuilder
@@ -131,7 +131,7 @@ public class Compiler {
 
       BufferedReader reader =
         new BufferedReader(new StringReader(errorBuffer.toString()));
-      //System.err.addEmptyLine(errorBuffer.toString());
+      //System.err.println(errorBuffer.toString());
 
       String line = null;
       while ((line = reader.readLine()) != null) {
@@ -141,9 +141,9 @@ public class Compiler {
         // and at least the first line of the error message
         String errorFormat = "([\\w\\d_]+.java):(\\d+):\\s*(.*):\\s*(.*)\\s*";
         String[] pieces = PApplet.match(line, errorFormat);
-        //PApplet.addEmptyLine(pieces);
+        //PApplet.println(pieces);
 
-        // if it's something unexpected, die and addCode the mess to the console
+        // if it's something unexpected, die and print the mess to the console
         if (pieces == null) {
           exception = new SketchException("Cannot parse error text: " + line);
           exception.hideStackTrace();
@@ -180,7 +180,7 @@ public class Compiler {
           String[] m = PApplet.match(errorMessage, "The import (.*) cannot be resolved");
           //what = what.substring(0, what.indexOf(' '));
           if (m != null) {
-//            System.out.addEmptyLine("'" + m[1] + "'");
+//            System.out.println("'" + m[1] + "'");
             if (m[1].equals("processing.xml")) {
               exception.setMessage("processing.xml no longer exists, this code needs to be updated for 2.0.");
               System.err.println("The processing.xml library has been replaced " +
@@ -225,7 +225,7 @@ public class Compiler {
 
         } else if (errorMessage.endsWith("cannot be resolved")) {
           // xxx cannot be resolved
-          //addEmptyLine(xxx);
+          //println(xxx);
 
           String what = errorMessage.substring(0, errorMessage.indexOf(' '));
 
