@@ -35,6 +35,7 @@
   </target>
 
   <target name="preproc" description="Compile ANTLR 4 grammar">
+    <echo>Using ATLR 4 at ${antlr_jar}.</echo>
     <java classname="org.antlr.v4.Tool"
         failonerror="true">
       <classpath path="${antlr_jar}" />
