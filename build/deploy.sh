@@ -4,7 +4,6 @@ echo "=============================="
 mkdir all_os_release
 TIMESTAMP=$(date -u "+%Y-%m-%d_%H-%M-%S")
 
-
 echo "=============================="
 echo "====   Preparing Windows  ===="
 echo "=============================="
@@ -52,6 +51,17 @@ echo "==== Preparing Linux ARM  ===="
 echo "=============================="
 ant cross-build-linux-aarch64
 zip -r all_os_release/$(echo $TIMESTAMP)_linux_aarch64.zip linux/work
+
+
+echo "=============================="
+echo "====       Deploying      ===="
+echo "=============================="
+aws s3 cp all_os_release/$(echo $TIMESTAMP)_windows.zip s3://processing-build-open-source/windows/$(echo $TIMESTAMP)_windows.zip
+aws s3 cp all_os_release/$(echo $TIMESTAMP)_macosx.zip s3://processing-build-open-source/macosx/$(echo $TIMESTAMP)_macosx.zip
+aws s3 cp all_os_release/$(echo $TIMESTAMP)_linux_x64.zip s3://processing-build-open-source/linux/$(echo $TIMESTAMP)_linux_x64.zip
+aws s3 cp all_os_release/$(echo $TIMESTAMP)_linux_aarch64.zip s3://processing-build-open-source/linux/$(echo $TIMESTAMP)_linux_aarch64.zip
+echo $TIMESTAMP > LATEST.txt
+aws s3 cp LATEST.txt s3://processing-build-open-source
 
 
 echo "=============================="
