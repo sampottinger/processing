@@ -14,4 +14,4 @@ before_script:
 
 script:
   - ant clean
-  - ant build
+  - ant test
