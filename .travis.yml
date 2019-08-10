@@ -7,6 +7,7 @@ jdk:
   - openjdk11
 
 before_script:
+  - sudo apt-get install ant-optional
   - cd build
 
 script:
