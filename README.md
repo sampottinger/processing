@@ -11,7 +11,7 @@ This is a fork of the [Processing](https://github.com/processing/processing) pro
 
 Usage
 --------------------------------------------------------------
-Pre-built binaries are available for download! These are not sponsored or endorsed by the Processing Foundation and are only provided as a convenience for testing this branch. See [https://www.datadrivenempathy.com/processing](https://www.datadrivenempathy.com/processing). You can also clone this repo (`$ git clone git@github.com:sampottinger/processing.git`) and follow the build instructions below.
+Pre-built binaries are available for download! These are not sponsored or endorsed by the Processing Foundation and are only provided as a convenience for testing this branch. These are temporary and will go away as the review process continues. It is not meant to be a release. See [https://www.datadrivenempathy.com/processing](https://www.datadrivenempathy.com/processing). You can also clone this repo (`$ git clone git@github.com:sampottinger/processing.git`) and follow the build instructions below.
 
 <br>
 
