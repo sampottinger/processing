@@ -11,7 +11,7 @@ This is a fork of the [Processing](https://github.com/processing/processing) pro
 
 Usage
 --------------------------------------------------------------
-I might try to post a set of executables depending on conversation at [Support for Java 11, OpenJDK, and OpenJFX](https://github.com/processing/processing/pull/5753). Until then, clone this repo (`$ git clone git@github.com:sampottinger/processing.git`) and follow the build instructions below.
+Pre-built binaries are available for download! These are not sponsored or endorsed by the Processing Foundation and are only provided as a convenience for testing this branch. See [https://www.datadrivenempathy.com/processing](https://www.datadrivenempathy.com/processing). You can also clone this repo (`$ git clone git@github.com:sampottinger/processing.git`) and follow the build instructions below.
 
 <br>
 
