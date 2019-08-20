@@ -21,13 +21,16 @@
 
 package processing.mode.java.preproc.issue;
 
+import processing.mode.java.preproc.SourceEmitter;
+import processing.mode.java.preproc.issue.PdePreprocessIssueListener;
+
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
-import processing.mode.java.preproc.SourceEmitter;
 
 import java.util.BitSet;
 import java.util.Optional;
@@ -45,8 +48,8 @@ import java.util.Optional;
  */
 public class PdeIssueEmitter extends BaseErrorListener {
 
-  private final processing.mode.java.preproc.issue.PdePreprocessIssueListener listener;
-  private final Optional<processing.mode.java.preproc.SourceEmitter> sourceMaybe;
+  private final PdePreprocessIssueListener listener;
+  private final Optional<SourceEmitter> sourceMaybe;
 
   /**
    * Create a new issue emitter.
@@ -59,7 +62,7 @@ public class PdeIssueEmitter extends BaseErrorListener {
    *
    * @param newListener The listener to inform when encountering a syntax error.
    */
-  public PdeIssueEmitter(processing.mode.java.preproc.issue.PdePreprocessIssueListener newListener) {
+  public PdeIssueEmitter(PdePreprocessIssueListener newListener) {
     listener = newListener;
     sourceMaybe = Optional.empty();
   }
@@ -77,10 +80,11 @@ public class PdeIssueEmitter extends BaseErrorListener {
   }
 
   @Override
-  public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
-                          int charPositionInLine, String msg, RecognitionException e) {
+  public <T extends Token> void syntaxError(Recognizer<T, ?> recognizer, T offendingSymbol,
+      int line, int charPositionInLine, String msg, RecognitionException e) {
 
-    IssueMessageSimplification simplification = PreprocessIssueMessageSimplifierFacade.get().simplify(msg);
+    PreprocessIssueMessageSimplifierFacade facade = PreprocessIssueMessageSimplifierFacade.get();
+    IssueMessageSimplification simplification = facade.simplify(msg);
 
     IssueLocation issueLocation;
 
@@ -100,21 +104,6 @@ public class PdeIssueEmitter extends BaseErrorListener {
         issueLocation.getCharPosition(),
         simplification.getMessage()
     ));
-  }
-
-  @Override
-  public void reportAmbiguity(Parser recognizer, DFA dfa, int startIndex, int stopIndex,
-      boolean exact, BitSet ambigAlts, ATNConfigSet configs) {
-  }
-
-  @Override
-  public void reportAttemptingFullContext(Parser recognizer, DFA dfa, int startIndex, int stopIndex,
-      BitSet conflictingAlts, ATNConfigSet configs) {
-  }
-
-  @Override
-  public void reportContextSensitivity(Parser recognizer, DFA dfa, int startIndex, int stopIndex,
-      int prediction, ATNConfigSet configs) {
   }
 
 }
