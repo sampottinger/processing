@@ -7,7 +7,7 @@
 
   <property name="grammars"
 	    value="${basedir}/src/processing/mode/java/preproc" />
-
+  
   <property name="mode_jar"
             value="${basedir}/mode/JavaMode.jar" />
 
