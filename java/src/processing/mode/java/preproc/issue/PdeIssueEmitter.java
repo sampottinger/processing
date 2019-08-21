@@ -80,7 +80,8 @@ public class PdeIssueEmitter extends BaseErrorListener {
   public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
                           int charPositionInLine, String msg, RecognitionException e) {
 
-    IssueMessageSimplification simplification = PreprocessIssueMessageSimplifierFacade.get().simplify(msg);
+    PreprocessIssueMessageSimplifierFacade facade = PreprocessIssueMessageSimplifierFacade.get();
+    IssueMessageSimplification simplification = facade.simplify(msg);
 
     IssueLocation issueLocation;
 
@@ -100,21 +101,6 @@ public class PdeIssueEmitter extends BaseErrorListener {
         issueLocation.getCharPosition(),
         simplification.getMessage()
     ));
-  }
-
-  @Override
-  public void reportAmbiguity(Parser recognizer, DFA dfa, int startIndex, int stopIndex,
-      boolean exact, BitSet ambigAlts, ATNConfigSet configs) {
-  }
-
-  @Override
-  public void reportAttemptingFullContext(Parser recognizer, DFA dfa, int startIndex, int stopIndex,
-      BitSet conflictingAlts, ATNConfigSet configs) {
-  }
-
-  @Override
-  public void reportContextSensitivity(Parser recognizer, DFA dfa, int startIndex, int stopIndex,
-      int prediction, ATNConfigSet configs) {
   }
 
 }
