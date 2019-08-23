@@ -57,9 +57,7 @@ public class KnownMissingMessageSimplifierStrategy implements PreprocIssueMessag
 
       String newMessage = String.format(langTemplate, missingPiece);
 
-      return Optional.of(
-          new IssueMessageSimplification(newMessage, true)
-      );
+      return Optional.of(new IssueMessageSimplification(newMessage));
     } else {
       return Optional.empty();
     }
