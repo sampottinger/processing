@@ -58,7 +58,7 @@ public class IssueLocationFactory {
     // Determine if the issue should be relocated
     boolean shouldAttributeToPrior = simplification.getAttributeToPriorToken();
     shouldAttributeToPrior = shouldAttributeToPrior && originalLine != 0;
-
+    
     if (!shouldAttributeToPrior) {
       return new IssueLocation(originalLine, originalOffset);
     }
