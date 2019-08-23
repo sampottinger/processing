@@ -775,7 +775,7 @@
       <option value="-Xms128M" />
       -->
       <!-- returning 140606 per PDE X request -->
-      <option value="-Xmx256M" />
+      <option value="-Xmx512M" />
 
       <option value="-Dapple.awt.application.name=Processing" />
 

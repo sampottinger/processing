@@ -104,7 +104,7 @@ cmd_name='processing-java'
 
 if [ $current_name = $cmd_name ]
 then
-    java -Djna.nosys=true -Xmx256m processing.mode.java.Commander "$@"
+    java -Djna.nosys=true -Xmx512m processing.mode.java.Commander "$@"
     exit $?
 else
   # Start Processing in the same directory as this script

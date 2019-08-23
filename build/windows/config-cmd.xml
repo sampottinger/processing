@@ -37,7 +37,7 @@
     <!-- starting in 3.0, require Java 8 -->
     <minVersion>1.8.0_60</minVersion>
     <!-- increase available per PDE X request -->
-    <maxHeapSize>256</maxHeapSize>
+    <maxHeapSize>512</maxHeapSize>
   </jre>
 
   <messages>
