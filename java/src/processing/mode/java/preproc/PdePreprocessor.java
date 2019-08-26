@@ -1,4 +1,24 @@
 /* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
+
+/*
+Part of the Processing project - http://processing.org
+
+Copyright (c) 2012-19 The Processing Foundation
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software Foundation,
+Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
 package processing.mode.java.preproc;
 
 import java.io.PrintWriter;
@@ -31,7 +51,7 @@ public class PdePreprocessor {
 
   private boolean hasMain;
 
-  private final boolean isTested;
+  private final boolean isTesting;
 
   /**
    * Create a new preprocessor.
@@ -57,13 +77,13 @@ public class PdePreprocessor {
    *
    * @param sketchName The name of the sketch.
    * @param tabSize The number of tabs.
-   * @param isTested Flag indicating if this is running in unit tests (true) or in production
+   * @param isTesting Flag indicating if this is running in unit tests (true) or in production
    *    (false).
    */
-  public PdePreprocessor(final String sketchName, final int tabSize, boolean isTested) {
+  public PdePreprocessor(final String sketchName, final int tabSize, boolean isTesting) {
     this.sketchName = sketchName;
     this.tabSize = tabSize;
-    this.isTested = isTested;
+    this.isTesting = isTesting;
   }
 
   /**
@@ -129,14 +149,16 @@ public class PdePreprocessor {
     }
 
     // Parser
+    final List<PdePreprocessIssue> preprocessIssues = new ArrayList<>();
+    final List<PdePreprocessIssue> treeIssues = new ArrayList<>();
     PdeParseTreeListener listener = createListener(tokens, sketchName);
-    listener.setTested(isTested);
+    listener.setTesting(isTesting);
     listener.setCoreImports(ImportUtil.getCoreImports());
     listener.setDefaultImports(ImportUtil.getDefaultImports());
     listener.setCodeFolderImports(codeFolderImports);
+    listener.setTreeErrorListener((x) -> { treeIssues.add(x); });
 
     final String finalInProgram = inProgram;
-    final List<PdePreprocessIssue> preprocessIssues = new ArrayList<>();
     ParseTree tree;
     {
       ProcessingParser parser = new ProcessingParser(tokens);
@@ -155,6 +177,11 @@ public class PdePreprocessor {
 
     ParseTreeWalker treeWalker = new ParseTreeWalker();
     treeWalker.walk(listener, tree);
+
+    // Check for issues encountered in walk
+    if (treeIssues.size() > 0) {
+      return PreprocessorResult.reportPreprocessIssues(treeIssues);
+    }
 
     // Return resulting program
     String outputProgram = listener.getOutputProgram();

@@ -27,6 +27,7 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
+
 import processing.mode.java.preproc.SourceEmitter;
 
 import java.util.BitSet;
@@ -45,8 +46,8 @@ import java.util.Optional;
  */
 public class PdeIssueEmitter extends BaseErrorListener {
 
-  private final processing.mode.java.preproc.issue.PdePreprocessIssueListener listener;
-  private final Optional<processing.mode.java.preproc.SourceEmitter> sourceMaybe;
+  private final PdePreprocessIssueListener listener;
+  private final Optional<SourceEmitter> sourceMaybe;
 
   /**
    * Create a new issue emitter.
@@ -59,7 +60,7 @@ public class PdeIssueEmitter extends BaseErrorListener {
    *
    * @param newListener The listener to inform when encountering a syntax error.
    */
-  public PdeIssueEmitter(processing.mode.java.preproc.issue.PdePreprocessIssueListener newListener) {
+  public PdeIssueEmitter(PdePreprocessIssueListener newListener) {
     listener = newListener;
     sourceMaybe = Optional.empty();
   }

@@ -16,7 +16,7 @@ public class RewriteParamsBuilder {
   private final String version;
 
   private Optional<String> sketchName;
-  private Optional<Boolean> isTested;
+  private Optional<Boolean> isTesting;
   private Optional<TokenStreamRewriter> rewriter;
   private Optional<PdePreprocessor.Mode> mode;
   private Optional<Boolean> foundMain;
@@ -46,7 +46,7 @@ public class RewriteParamsBuilder {
     foundImports = new ArrayList<>();
 
     sketchName = Optional.empty();
-    isTested = Optional.empty();
+    isTesting = Optional.empty();
     rewriter = Optional.empty();
     mode = Optional.empty();
     foundMain = Optional.empty();
@@ -70,10 +70,10 @@ public class RewriteParamsBuilder {
   /**
    * Specify if this is being run as part of automated testing.
    *
-   * @param newIsTested Flag indicating if this is being run as part of automated testing.
+   * @param newisTesting Flag indicating if this is being run as part of automated testing.
    */
-  public void setIsTested(boolean newIsTested) {
-    isTested = Optional.of(newIsTested);
+  public void setisTesting(boolean newisTesting) {
+    isTesting = Optional.of(newisTesting);
   }
 
   /**
@@ -206,8 +206,8 @@ public class RewriteParamsBuilder {
       throw new RuntimeException("Expected sketchName to be set");
     }
 
-    if (isTested.isEmpty()) {
-      throw new RuntimeException("Expected isTested to be set");
+    if (isTesting.isEmpty()) {
+      throw new RuntimeException("Expected isTesting to be set");
     }
 
     if (rewriter.isEmpty()) {
@@ -237,7 +237,7 @@ public class RewriteParamsBuilder {
     return new RewriteParams(
         version,
         sketchName.get(),
-        isTested.get(),
+        isTesting.get(),
         rewriter.get(),
         mode.get(),
         foundMain.get(),

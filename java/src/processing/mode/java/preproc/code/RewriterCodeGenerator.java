@@ -52,7 +52,7 @@ public class RewriterCodeGenerator {
         true
     );
 
-    if (!params.getIsTested()) writePreprocessorComment(decoratedWriter, params, resultBuilder);
+    if (!params.getisTesting()) writePreprocessorComment(decoratedWriter, params, resultBuilder);
     writeImports(decoratedWriter, params, resultBuilder);
 
     PdePreprocessor.Mode mode = params.getMode();
