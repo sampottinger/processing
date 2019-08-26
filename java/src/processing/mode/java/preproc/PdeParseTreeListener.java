@@ -32,6 +32,7 @@ import processing.mode.java.pdex.TextTransform;
 import processing.mode.java.preproc.PdePreprocessor.Mode;
 import processing.mode.java.preproc.code.*;
 import processing.mode.java.preproc.issue.PdePreprocessIssue;
+import processing.mode.java.preproc.issue.strategy.MessageSimplifierUtil;
 
 /**
  * ANTLR tree traversal listener that preforms code rewrites as part of sketch preprocessing.
@@ -386,7 +387,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
         listener.onError(new PdePreprocessIssue(
           line,
           charOffset,
-          "Imports not allowed within class bodies."
+          MessageSimplifierUtil.getLocalStr("editor.status.bad.import")
         ));
       });
     }
