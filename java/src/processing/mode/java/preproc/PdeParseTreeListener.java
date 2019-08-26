@@ -31,7 +31,8 @@ import processing.core.PApplet;
 import processing.mode.java.pdex.TextTransform;
 import processing.mode.java.preproc.PdePreprocessor.Mode;
 import processing.mode.java.preproc.code.*;
-
+import processing.mode.java.preproc.issue.PdePreprocessIssue;
+import processing.mode.java.preproc.issue.strategy.MessageSimplifierUtil;
 
 /**
  * ANTLR tree traversal listener that preforms code rewrites as part of sketch preprocessing.
@@ -53,7 +54,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
   private int headerOffset;
 
   private String sketchName;
-  private boolean isTested;
+  private boolean isTesting;
   private TokenStreamRewriter rewriter;
 
   protected Mode mode = Mode.JAVA;
@@ -76,6 +77,8 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
   private RewriteResult headerResult;
   private RewriteResult footerResult;
 
+  private Optional<PdeParseTreeErrorListener> pdeParseTreeErrorListenerMaybe;
+
   /**
    * Create a new listener.
    *
@@ -87,6 +90,8 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     rewriter = new TokenStreamRewriter(tokens);
     sketchName = newSketchName;
     tabSize = newTabSize;
+
+    pdeParseTreeErrorListenerMaybe = Optional.empty();
   }
 
   /**
@@ -150,10 +155,20 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
   /**
    * Indicate if running in unit tests.
    *
-   * @param isTested True if running as part of tests and false otherwise.
+   * @param isTesting True if running as part of tests and false otherwise.
    */
-  public void setTested(boolean isTested) {
-    this.isTested = isTested;
+  public void setTesting(boolean isTesting) {
+    this.isTesting = isTesting;
+  }
+
+  /**
+   * Indicate which listener should be informed of parse tree processing issues.
+   *
+   * @param newListener listener to be informed when an issue is encoutnered in processing the
+   *    parse tree.
+   */
+  public void setTreeErrorListener(PdeParseTreeErrorListener newListener) {
+    pdeParseTreeErrorListenerMaybe = Optional.of(newListener);
   }
 
   /**
@@ -213,7 +228,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
   }
 
   // --------------------------------------------------- listener impl
-  
+
   /**
    * Endpoint for ANTLR to call when having finished parsing a processing sketch.
    *
@@ -361,6 +376,21 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
    */
   public void exitImportDeclaration(ProcessingParser.ImportDeclarationContext ctx) {
     ProcessingParser.QualifiedNameContext startCtx = null;
+
+    // Due to imports pre-procesing, cannot allow class-body imports
+    if (ctx.getParent() instanceof ProcessingParser.ClassBodyDeclarationContext) {
+      pdeParseTreeErrorListenerMaybe.ifPresent((listener) -> {
+        Token token = ctx.getStart();
+        int line = token.getLine();
+        int charOffset = token.getCharPositionInLine();
+
+        listener.onError(new PdePreprocessIssue(
+          line,
+          charOffset,
+          MessageSimplifierUtil.getLocalStr("editor.status.bad.import")
+        ));
+      });
+    }
 
     for(int i = 0; i < ctx.getChildCount(); i++) {
       ParseTree candidate = ctx.getChild(i);
@@ -657,7 +687,7 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     RewriteParamsBuilder builder = new RewriteParamsBuilder(VERSION_STR);
 
     builder.setSketchName(sketchName);
-    builder.setIsTested(isTested);
+    builder.setisTesting(isTesting);
     builder.setRewriter(rewriter);
     builder.setMode(mode);
     builder.setFoundMain(foundMain);

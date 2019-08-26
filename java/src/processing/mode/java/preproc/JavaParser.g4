@@ -122,6 +122,7 @@ interfaceBody
 
 classBodyDeclaration
     : ';'
+    | importDeclaration
     | STATIC? block
     | modifier* memberDeclaration
     ;

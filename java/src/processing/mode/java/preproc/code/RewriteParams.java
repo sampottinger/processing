@@ -14,7 +14,7 @@ public class RewriteParams {
 
   private final String version;
   private final String sketchName;
-  private final boolean isTested;
+  private final boolean isTesting;
   private final TokenStreamRewriter rewriter;
   private final PdePreprocessor.Mode mode;
   private final boolean foundMain;
@@ -34,7 +34,7 @@ public class RewriteParams {
    *
    * @param newVersion The version of the preprocessor.
    * @param newSketchName The name of the sketch.
-   * @param newIsTested Flag indicating if this is being run as part of automated testing.
+   * @param newisTesting Flag indicating if this is being run as part of automated testing.
    * @param newRewriter The rewriter into which edits should be made.
    * @param newMode The mode (like STATIC) in which processing is being run.
    * @param newFoundMain Flag indicating if a user-provided main method was found in preprocessing.
@@ -52,7 +52,7 @@ public class RewriteParams {
    *    is made from sketch global context.
    * @param newSizeIsFullscreen Indicate if in fullscreen mode.
    */
-  public RewriteParams(String newVersion, String newSketchName, boolean newIsTested,
+  public RewriteParams(String newVersion, String newSketchName, boolean newisTesting,
                        TokenStreamRewriter newRewriter, PdePreprocessor.Mode newMode,
                        boolean newFoundMain, int newLineOffset, List<String> newCoreImports,
                        List<String> newDefaultImports, List<String> newCodeFolderImports,
@@ -62,7 +62,7 @@ public class RewriteParams {
 
     version = newVersion;
     sketchName = newSketchName;
-    isTested = newIsTested;
+    isTesting = newisTesting;
     rewriter = newRewriter;
     mode = newMode;
     foundMain = newFoundMain;
@@ -101,8 +101,8 @@ public class RewriteParams {
    *
    * @return Flag indicating if this is being run as part of automated testing.
    */
-  public boolean getIsTested() {
-    return isTested;
+  public boolean getisTesting() {
+    return isTesting;
   }
 
   /**
