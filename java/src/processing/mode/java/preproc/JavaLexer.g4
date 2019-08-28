@@ -76,6 +76,7 @@ THROW:              'throw';
 THROWS:             'throws';
 TRANSIENT:          'transient';
 TRY:                'try';
+VAR:                'var';
 VOID:               'void';
 VOLATILE:           'volatile';
 WHILE:              'while';
