@@ -69,8 +69,8 @@ public class Compiler {
       "-g",
       "-Xemacs",
       //"-noExit",  // not necessary for ecj
-      "-source", "1.8",
-      "-target", "1.8",
+      "-source", "11",
+      "-target", "11",
       "-encoding", "utf8",
       "-classpath", classpathEmptyRemoved,
       "-nowarn", // we're not currently interested in warnings (works in ecj)

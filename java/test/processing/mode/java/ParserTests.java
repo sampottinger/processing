@@ -138,7 +138,7 @@ public class ParserTests {
     }
   }
 
-  /*@Test
+  @Test
   public void bug4() {
     expectGood("bug4");
   }
@@ -170,7 +170,7 @@ public class ParserTests {
 
   @Test
   public void bug196() {
-    expectRecognitionException("bug196", 4);
+    expectRecognitionException("bug196", 5);
   }
 
   @Test
@@ -200,7 +200,7 @@ public class ParserTests {
 
   @Test
   public void bug763() {
-    expectRunnerException("bug763", 7);
+    expectRunnerException("bug763", 8);
   }
 
   @Test
@@ -251,7 +251,7 @@ public class ParserTests {
   @Test
   public void bug1514b() {
     expectGood("bug1514b");
-  }*/
+  }
 
   @Test
   public void bug1515() {
@@ -361,6 +361,11 @@ public class ParserTests {
   @Test
   public void charSpecial() {
     expectGood("charspecial", true);
+  }
+
+  @Test
+  public void typeInference() {
+    expectGood("typeinference");
   }
 
   private static boolean compile(String id, String program) {
