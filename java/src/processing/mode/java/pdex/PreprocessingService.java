@@ -72,7 +72,7 @@ public class PreprocessingService {
 
   protected final JavaEditor editor;
 
-  protected final ASTParser parser = ASTParser.newParser(AST.JLS8);
+  protected final ASTParser parser = ASTParser.newParser(AST.JLS11);
 
   private final Thread preprocessingThread;
   private final BlockingQueue<Boolean> requestQueue = new ArrayBlockingQueue<>(1);
