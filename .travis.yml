@@ -1,0 +1,17 @@
+os: osx
+
+git:
+  depth: 1
+
+language: java
+
+jdk:
+  - openjdk11
+
+before_script:
+  - cd build
+  - travis_wait brew install ant
+
+script:
+  - ant clean
+  - ant build
